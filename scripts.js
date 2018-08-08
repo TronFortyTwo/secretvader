@@ -166,6 +166,10 @@ function setGame()
 	// election tracker
 	sessionStorage.setItem("tracker", "0");
 	
+	// how many cards are in the table
+	sessionStorage.setItem("empire_cards", "0");
+	sessionStorage.setItem("liberal_cards", "0");
+	
 	// at the start of the game, just do a turn showing each one role
 	sessionStorage.setItem("phase", "first_round");
 }
@@ -226,7 +230,7 @@ function playLoaded()
 		document.getElementById("comment").innerHTML = text;
 	}
 	// election phase - emperor turn
-	else if( phase === "election_emperor" )
+	else if( phase === "election" )
 	{
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
@@ -254,8 +258,8 @@ function playLoaded()
 			let past_c = sessionStorage.getItem("past_chancellor");
 			
 			if( i != turn &&
-				i != past_e &&
-				i != past_c
+				i != past_c &&
+				( (Number(player_num) < 7) || i != past_e)
 			)
 			{
 				let button = document.createElement("input");
@@ -304,7 +308,74 @@ function playLoaded()
 	}
 	else if(phase === "vote_result")
 	{
+		var chancellor_num = sessionStorage.getItem("chancellor");
+		var chancellor = sessionStorage.getObject("player" + emperor_num);
 		
+		// check votation results
+		let yes = 0;
+		let no = 0;
+		let approved = false;
+		
+		for(var i=1; i<=player_num; i++)
+		{
+			if( sessionStorage.getItem("vote"+i) == "y" )
+				yes++;
+			else
+				no++;
+		}
+		
+		if(yes > no){
+			approved = true;
+		}
+		
+		// write things down
+		document.getElementById("top_title").innerHTML = "Read this out loud";
+		
+		let text = "PUBLIC ANNOUNCE:<br>the new candidate government of<br>";
+		text += "- <b>" + emperor.name + "</b> as Emperor<br>";
+		text += "- <b>" + chancellor.name + "</b> as chancellor<br>";
+		text += "has been ";
+		if(approved)
+		{
+			text += '<font color="green">approved</font><br>';
+		}
+		else
+		{
+			text += '<font color="red">rejected</font><br>';
+		}
+		text += "<br>VOTES:<br>";
+		for(var i=1; i<=player_num; i++)
+		{
+			let temp = sessionStorage.getItem("vote"+i);
+			text += "- <b>" + sessionStorage.getObject("player"+i).name + "</b> : " + temp + "<br>"
+		}
+		if(approved)
+		{
+			text += "<br>Now the new government will create a new policy<br>";
+			
+			sessionStorage.setItem("phase", "legislative_emperor");
+			sessionStorage.setItem("turn", emperor_num);
+			sessionStorage.setItem("past_emperor", emperor_num);
+			sessionStorage.setItem("past_chancellor", chancellor_num);
+		}
+		else
+		{
+			let new_emperor = Number(sessionStorage.getItem("emperor"));
+			new_emperor++;
+			if(new_emperor > player_num)
+				new_emperor = 1;
+			
+			text += "<br>After this failure, the opportunity to create a new government is given to ";
+			text += "<b>" + sessionStorage.getObject("player"+new_emperor).name + "</b>";
+			
+			sessionStorage.setItem("phase", "election");
+			sessionStorage.setItem("tracker", Number(sessionStorage.getItem("tracker"))+1);
+			sessionStorage.setItem("emperor", new_emperor);
+			sessionStorage.setItem("chancellor", "0");
+		}
+		
+		// update text
+		document.getElementById("comment").innerHTML = text;
 	}
 	else
 	{
@@ -326,10 +397,10 @@ function postPlay()
 		// if everyone already seen his role, go to the election phase
 		if( turn == emperor_num )
 		{
-			sessionStorage.setItem("phase", "election_emperor");
+			sessionStorage.setItem("phase", "election");
 		}
 	}
-	else if(phase === "election_emperor")
+	else if(phase === "election")
 	{
 		turnStep();
 		
@@ -339,7 +410,7 @@ function postPlay()
 	else if(phase === "vote_round")
 	{
 		let turn = turnStep();
-		
+
 		// if everyone already seen his role, go to the election phase
 		if( turn == emperor_num )
 		{
@@ -348,6 +419,7 @@ function postPlay()
 	}
 	else if(phase === "vote_result")
 	{
+		// don't do anything, because we already do the things in the onload
 	}
 	else
 	{
@@ -363,6 +435,8 @@ function postPlay()
 function setChancellor( pl )
 {
 	sessionStorage.setItem("chancellor", pl);
+	
+	sessionStorage.setItem( "turn", Number(sessionStorage.getItem("turn") - 1));
 	
 	postPlay();
 }
