@@ -196,6 +196,7 @@ function playLoaded()
 	var emperor = sessionStorage.getObject("player" + emperor_num);
 	var player_num = sessionStorage.getItem("player_number");
 	
+	// -----------------------------------------------------------------
 	// first round just to show roles
 	if( phase === "first_round" )
 	{
@@ -229,6 +230,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "You are <b>" + player.role + "</b>";
 		document.getElementById("comment").innerHTML = text;
 	}
+	// -----------------------------------------------------------------
 	// election phase - emperor turn
 	else if( phase === "election" )
 	{
@@ -278,6 +280,8 @@ function playLoaded()
 			}
 		}
 	}
+	// -----------------------------------------------------------------
+	// do a round asking for the votes
 	else if( phase === "vote_round")
 	{
 		let chancellor_num = sessionStorage.getItem("chancellor");
@@ -287,7 +291,7 @@ function playLoaded()
 		
 		let text = "You have to vote for the proposed new govern:<br>- <b>";
 		text += emperor.name + "</b> as new Emperor<br>- <b>";
-		text += chancellor.name + "</b> as new Chancellor<br><br>";
+		text += chancellor.name + "</b> as new Chancellor<br>Please, don't say your vote until everyone has voted<br<br>";
 		document.getElementById("comment").innerHTML = text;
 		
 		let byes = document.getElementById("button");
@@ -306,10 +310,12 @@ function playLoaded()
 		
 		byes.parentNode.appendChild(bno);
 	}
+	// -----------------------------------------------------------------
+	// show election results
 	else if(phase === "vote_result")
 	{
 		var chancellor_num = sessionStorage.getItem("chancellor");
-		var chancellor = sessionStorage.getObject("player" + emperor_num);
+		var chancellor = sessionStorage.getObject("player" + chancellor_num);
 		
 		// check votation results
 		let yes = 0;
