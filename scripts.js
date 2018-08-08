@@ -104,7 +104,7 @@ function setGame()
 	// assign what player is V.
 	var vnum = random(1, player_num);
 	
-	var vader = JSON.parse(sessionStorage.getItem("player"+vnum));
+	var vader = sessionStorage.getObject("player"+vnum);
 	
 	vader.role = "Dart Vader";
 	
@@ -146,9 +146,9 @@ function setGame()
 	sessionStorage.setItem("emperor", first_emperor);
 	
 	// this is the first election
-	sessionStorage.setItem("chancellor", 0);
-	sessionStorage.setItem("past_emperor", 0);
-	sessionStorage.setItem("past_chancellor", 0);
+	sessionStorage.setItem("chancellor", "0");
+	sessionStorage.setItem("past_emperor", "0");
+	sessionStorage.setItem("past_chancellor", "0");
 	
 	// The first emperor is also the first to play
 	sessionStorage.setItem("turn", first_emperor);
@@ -157,14 +157,14 @@ function setGame()
 	var discard_pile = [];
 	var pile = [
 		"l","l","l","l","l","l",
-		"f","f","f","f","f","f","f","f","f","f","f",
+		"f","f","f","f","f","f","f","f","f","f","f"
 	];
 	pile = shuffle(pile);
 	sessionStorage.setItem("pile", pile);
 	sessionStorage.setItem("discard_pile", discard_pile);
 	
 	// election tracker
-	sessionStorage.setItem("tracker", 0);
+	sessionStorage.setItem("tracker", "0");
 	
 	// at the start of the game, just do a turn showing each one role
 	sessionStorage.setItem("phase", "first_round");
@@ -190,7 +190,7 @@ function playLoaded()
 	var player = sessionStorage.getObject("player" + turn );
 	var emperor_num = sessionStorage.getItem("emperor");
 	var emperor = sessionStorage.getObject("player" + emperor_num);
-	var player_num = Number(sessionStorage.getItem("player_number"));
+	var player_num = sessionStorage.getItem("player_number");
 	
 	// first round just to show roles
 	if( phase === "first_round" )
@@ -241,21 +241,28 @@ function playLoaded()
 			old_button.parentNode.removeChild(old_button);
 		}
 		
+		// function
+		function setButton(button, i) {
+			button.onclick = function(){ setChancellor(i); };
+		}
+		
+		// loop
 		for(var i=1; i<=player_num; i++)
 		{
 			let temp_player = sessionStorage.getObject("player"+i);
 			let past_e = sessionStorage.getItem("past_emperor");
 			let past_c = sessionStorage.getItem("past_chancellor");
 			
-			if( temp_player.name != player.name ||
-				i != past_e ||
+			if( i != turn &&
+				i != past_e &&
 				i != past_c
 			)
 			{
 				let button = document.createElement("input");
 				button.type = "button";
 				button.value = temp_player.name;
-				button.onclick = function(){ setChancellor( i ) };
+				
+				setButton(button, i);
 				
 				let el = document.getElementById("last_break");
 				el.parentNode.appendChild(button);
@@ -277,10 +284,16 @@ function playLoaded()
 		let text = "You have to vote for the proposed new govern:<br>- <b>";
 		text += emperor.name + "</b> as new Emperor<br>- <b>";
 		text += chancellor.name + "</b> as new Chancellor<br><br>";
+		document.getElementById("comment").innerHTML = text;
 		
 		let byes = document.getElementById("button");
 		byes.value = "Yes";
 		byes.onclick = function(){ vote("y", turn); };
+		
+		let bre = document.createElement("br");
+		let bre2 = document.createElement("br");
+		byes.parentNode.appendChild(bre);
+		byes.parentNode.appendChild(bre2);
 		
 		let bno = document.createElement("input");
 		bno.type = "button";
@@ -288,6 +301,10 @@ function playLoaded()
 		bno.onclick = function(){ vote("n", turn) };
 		
 		byes.parentNode.appendChild(bno);
+	}
+	else if(phase === "vote_result")
+	{
+		
 	}
 	else
 	{
@@ -326,8 +343,11 @@ function postPlay()
 		// if everyone already seen his role, go to the election phase
 		if( turn == emperor_num )
 		{
-			sessionStorage.setItem("phase", "legislative_emperor");
+			sessionStorage.setItem("phase", "vote_result");
 		}
+	}
+	else if(phase === "vote_result")
+	{
 	}
 	else
 	{
