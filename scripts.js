@@ -42,6 +42,24 @@ function shuffle(array) {
 }
 
 // ---------------------------------------------------------------------
+// subroutine that update the turn
+function turnStep()
+{
+	let player_num = Number(sessionStorage.getItem("player_number"));
+	
+	// update turn
+	let next_turn = Number(sessionStorage.getItem("turn")) + 1;
+		
+	// restart over if it's the case
+	if( next_turn > player_num)
+		next_turn = 1;
+		
+	sessionStorage.setItem("turn", next_turn);
+	
+	return next_turn;
+}
+
+// ---------------------------------------------------------------------
 // Start a new game
 function create( pnum )
 {
@@ -129,8 +147,8 @@ function setGame()
 	
 	// this is the first election
 	sessionStorage.setItem("chancellor", 0);
-	sessionStorage.setItem("past_emperor", "-");
-	sessionStorage.setItem("past_chancellor", "-");
+	sessionStorage.setItem("past_emperor", 0);
+	sessionStorage.setItem("past_chancellor", 0);
 	
 	// The first emperor is also the first to play
 	sessionStorage.setItem("turn", first_emperor);
@@ -271,6 +289,10 @@ function playLoaded()
 		
 		byes.parentNode.appendChild(bno);
 	}
+	else
+	{
+		console.log("error: unrecognized phase " + phase);
+	}
 }
 
 // ---------------------------------------------------------------------
@@ -279,33 +301,37 @@ function postPlay()
 {
 	var phase = sessionStorage.getItem("phase");
 	var emperor_num = Number(sessionStorage.getItem("emperor"));
-	var player_num = Number(sessionStorage.getItem("player_number"));
 	
 	if(phase === "first_round" )
 	{
-		// update turn
-		let next_turn = Number(sessionStorage.getItem("turn")) + 1;
-		
-		// restart over if it's the case
-		if( next_turn > player_num)
-			next_turn = 1;
-		
-		sessionStorage.setItem("turn", next_turn);
+		let turn = turnStep();
 		
 		// if everyone already seen his role, go to the election phase
-		if( next_turn == emperor_num )
+		if( turn == emperor_num )
 		{
 			sessionStorage.setItem("phase", "election_emperor");
 		}
 	}
 	else if(phase === "election_emperor")
 	{
+		turnStep();
+		
 		// after, we must do a round of votes
 		sessionStorage.setItem("phase", "vote_round");
 	}
 	else if(phase === "vote_round")
 	{
+		let turn = turnStep();
 		
+		// if everyone already seen his role, go to the election phase
+		if( turn == emperor_num )
+		{
+			sessionStorage.setItem("phase", "legislative_emperor");
+		}
+	}
+	else
+	{
+		console.log("error: unrecognized phase " + phase);
 	}
 	
 	// give control to next player that has to play
