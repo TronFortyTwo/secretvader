@@ -29,3 +29,7 @@ input {
      width: 100vw;
      height: 4vw;
 }
+input[type="text"]
+{
+    font-size: 2.34vw;
+}
