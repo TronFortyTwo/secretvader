@@ -214,6 +214,8 @@ function playLoaded()
 		
 		let text = "As candidate Emperor, you have to choose a player to be the candidate chancellor:";
 		
+		document.getElementById("comment").innerHTML = text;
+		
 		// remove button
 		let old_button = document.getElementById("button");
 		if(old_button)
@@ -234,11 +236,16 @@ function playLoaded()
 			{
 				let button = document.createElement("input");
 				button.type = "button";
-				button.value = "<b>" + temp_player.name + "<b>";
+				button.value = temp_player.name;
 				button.onclick = function(){ setChancellor( i ) };
 				
 				let el = document.getElementById("last_break");
-				el.appendChild(button);
+				el.parentNode.appendChild(button);
+				
+				let bre = document.createElement("br");
+				let bre2 = document.createElement("br");
+				el.parentNode.appendChild(bre);
+				el.parentNode.appendChild(bre2);
 			}
 		}
 	}
@@ -310,6 +317,15 @@ function postPlay()
 function setChancellor( pl )
 {
 	sessionStorage.setItem("chancellor", pl);
+	
+	postPlay();
+}
+
+// ---------------------------------------------------------------------
+// called from HTML, it sets the vote of someone
+function vote( v, who )
+{
+	sessionStorage.setItem("vote"+who, v );
 	
 	postPlay();
 }
