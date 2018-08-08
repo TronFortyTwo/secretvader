@@ -75,9 +75,6 @@ function create( pnum )
 // Setting the player name
 function setName( setnum )
 {
-	document.getElementById("p_title").innerHTML = "Player " + (setnum+1) + ":";
-	document.getElementById("p_button").onclick = function(){ setName(setnum+1); };
-	
 	var player = {
 		name: document.getElementById("p_text").value,
 		role: "liberal"
@@ -85,13 +82,17 @@ function setName( setnum )
 	
 	sessionStorage.setObject("player"+setnum, player);
 	
-	document.getElementById("p_text").value = "Boba Fett";
-	
 	if(setnum == sessionStorage.getItem("player_number") ) {
 		setGame();
 		
 		window.location = "pass.html";
 		return;
+	}
+	else
+	{
+		document.getElementById("p_title").innerHTML = "Player " + (setnum+1) + ":";
+		document.getElementById("p_button").onclick = function(){ setName(setnum+1); };
+		document.getElementById("p_text").value = "Player " + (setnum+1) + " name";
 	}
 }
 
@@ -124,9 +125,9 @@ function setGame()
 	}
 	
 	while(num_empire > 0) {
-		var empire_num = random(1, player_num);
+		let empire_num = random(1, player_num);
 		
-		var p = sessionStorage.getObject("player"+empire_num);
+		let p = sessionStorage.getObject("player"+empire_num);
 		
 		if(p.role !== "liberal") {
 			continue;
@@ -144,6 +145,8 @@ function setGame()
 	// now choose who now is gonna be the first Emperor
 	var first_emperor = random(1, player_num);
 	sessionStorage.setItem("emperor", first_emperor);
+	
+	console.log( sessionStorage.getObject("player"+first_emperor).name + " is first emperor");
 	
 	// this is the first election
 	sessionStorage.setItem("chancellor", "0");
@@ -337,7 +340,7 @@ function playLoaded()
 		// write things down
 		document.getElementById("top_title").innerHTML = "Read this out loud";
 		
-		let text = "PUBLIC ANNOUNCE:<br>the new candidate government of<br>";
+		let text = "PUBLIC ANNOUNCE:<br>the new candidate government with<br>";
 		text += "- <b>" + emperor.name + "</b> as Emperor<br>";
 		text += "- <b>" + chancellor.name + "</b> as chancellor<br>";
 		text += "has been ";
@@ -359,7 +362,7 @@ function playLoaded()
 		{
 			text += "<br>Now the new government will create a new policy<br>";
 			
-			sessionStorage.setItem("phase", "legislative_emperor");
+			sessionStorage.setItem("vote_result", "y");
 			sessionStorage.setItem("turn", emperor_num);
 			sessionStorage.setItem("past_emperor", emperor_num);
 			sessionStorage.setItem("past_chancellor", chancellor_num);
@@ -374,9 +377,10 @@ function playLoaded()
 			text += "<br>After this failure, the opportunity to create a new government is given to ";
 			text += "<b>" + sessionStorage.getObject("player"+new_emperor).name + "</b>";
 			
-			sessionStorage.setItem("phase", "election");
+			sessionStorage.setItem("vote_result", "n");
 			sessionStorage.setItem("tracker", Number(sessionStorage.getItem("tracker"))+1);
 			sessionStorage.setItem("emperor", new_emperor);
+			sessionStorage.setItem("turn", new_emperor);
 			sessionStorage.setItem("chancellor", "0");
 		}
 		
@@ -425,7 +429,14 @@ function postPlay()
 	}
 	else if(phase === "vote_result")
 	{
-		// don't do anything, because we already do the things in the onload
+		let result = sessionStorage.getItem("vote_result");
+		
+		if(result == "y")
+			sessionStorage.setItem("phase", "legislative_emperor");
+		else
+			sessionStorage.setItem("phase", "election");
+		
+		sessionStorage.removeItem("vote_result");
 	}
 	else
 	{
