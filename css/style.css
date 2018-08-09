@@ -37,6 +37,16 @@ p {
 	font-size: 3vw;
 }
 
+b {
+	margin-right: 0vw;
+	margin-left: 0vw;
+}
+
+font {
+	margin-right: 0vw;
+	margin-left: 0vw;
+}
+
 button {
      width: 80vw;
      height: 6vw;

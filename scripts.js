@@ -532,10 +532,23 @@ function playLoaded()
 		{
 			text += '<font color="red">fascist</font><br>';
 		}
-		text += " policy<br><br>"
-		text += "Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
+		
+		text += " policy"
+		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
-		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3<br>";
+		
+		// update emperor
+		let new_emperor = Number(sessionStorage.getItem("emperor"));
+		new_emperor++;
+		if(new_emperor > player_num){
+			new_emperor = 1;
+		}
+		sessionStorage.setItem("emperor", new_emperor);
+		sessionStorage.setItem("turn", new_emperor);
+		
+		text += "<br> Now a new government will be created. The candidate Emperor now is <b>";
+		text += sessionStorage.getObject("player"+new_emperor).name + "</b><br>";
 		
 		document.getElementById("comment").innerHTML = text;
 	}
@@ -543,13 +556,39 @@ function playLoaded()
 	// liberals just won by making enought liberal policies
 	else if(phase == "liberal_win_cards")
 	{
+		document.getElementById("top_title").innerHTML = "LIBERALS WINS!!";
 		
+		let text = "PUBLIC ANNOUNCE:<br>Placing the last liberal policy on the board, the liberals won the game!<br>";
+		text += "<br>Roles:<br>"
+		for(let i=1; i<=player_num; i++)
+		{
+			let temp = sessionStorage.getObject("player"+i);
+			
+			text += "- <b>" + temp.name + "</b> (" + temp.role + ")<br>";
+		}
+		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
+		
+		document.getElementById("comment").innerHTML = text;
 	}
 	// -----------------------------------------------------------------
 	// imperlists just won by making enought fascist policies
 	else if(phase == "empire_win_cards")
 	{
+		document.getElementById("top_title").innerHTML = "IMPERIALISTS WINS!!";
 		
+		let text = "PUBLIC ANNOUNCE:<br>Placing the last fascist policy on the board, the imperialists won the game!<br>";
+		text += "<br>Roles:<br>"
+		for(let i=1; i<=player_num; i++)
+		{
+			let temp = sessionStorage.getObject("player"+i);
+			
+			text += "- <b>" + temp.name + "</b> (" + temp.role + ")<br>";
+		}
+		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
+		
+		document.getElementById("comment").innerHTML = text;
 	}
 	else
 	{
@@ -674,7 +713,7 @@ function postPlay()
 	}
 	else if(phase == "legislative_result")
 	{
-		
+		sessionStorage.setItem("phase", "election");
 	}
 	else if(phase == "liberal_win_cards")
 	{
