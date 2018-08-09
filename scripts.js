@@ -772,7 +772,7 @@ function postPlay()
 		let discarded_card = sessionStorage.getItem("card"+discarded_num);
 		
 		// put the card in the discard pile
-		discard_pile.concat("", discarded_card);
+		discard_pile += discarded_card;
 		sessionStorage.setItem("discard_pile", discard_pile);
 		
 		// now put the two cards left as card1 and card2
@@ -790,10 +790,14 @@ function postPlay()
 		let picked = sessionStorage.getItem("card_picked");
 		let discarded;
 		
-		(picked == 1) ? discarder=2: discarded=1;
-		
+		if(picked == 1) {
+			discarded = 2;
+		}
+		else {
+			discarded = 1;
+		}
 		// discard the other card
-		discard_pile.concat("", sessionStorage.getItem("card"+discarded) );
+		discard_pile += sessionStorage.getItem("card"+discarded);
 		sessionStorage.setItem("discard_pile", discard_pile);
 		
 		let card_picked = sessionStorage.getItem("card"+picked);
