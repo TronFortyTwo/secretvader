@@ -423,19 +423,21 @@ function playLoaded()
 		
 		// reshuffle pile if needed
 		if(pile.length < 3) {
-			pile = pile.concat(discard_pile);
+			pile = pile.concat("", discard_pile);
 			discard_pile = "";
 			pile = shuffle(pile);
 		}
 		
 		let card1 = pile[pile.length -1];
 		sessionStorage.setItem("card1", card1);
-		let card2 = pile[pile.length -2];
+		pile = pile.slice(0,-1);
+		
+		let card2 = pile[pile.length -1];
 		sessionStorage.setItem("card2", card2);
-		let card3 = pile[pile.length -3]
+		pile = pile.slice(0,-1);
+		
+		let card3 = pile[pile.length -1];
 		sessionStorage.setItem("card3", card3);
-		pile = pile.slice(0,-1);
-		pile = pile.slice(0,-1);
 		pile = pile.slice(0,-1);
 		
 		// the three card buttons
@@ -639,6 +641,59 @@ function playLoaded()
 		
 		document.getElementById("comment").innerHTML = text;
 	}
+	// -----------------------------------------------------------------
+	// Country fell in caos, a policy is randomly turned
+	else if(phase == "caos")
+	{
+		// take the first policy of the pile
+		let pile = sessionStorage.getItem("pile");
+		if(pile.length == 0)
+		{
+			let discard_pile = sessionStorage.getItem("discard_pile");
+			
+			pile = shuffle(discard_pile);
+			
+			discard_pile = "";
+			
+			sessionStorage.setItem("discard_pile", discard_pile);
+		}
+		let pol = pile[pile.length-1];
+		pile = pile.slice(0,-1);
+		sessionStorage.setItem("pile", pile);
+		
+		// apply the policy
+		if(pol == "f")
+		{
+			let temp = Number(sessionStorage.getItem("empire_cards"));
+			sessionStorage.setItem("empire_cards", temp+1);
+		}
+		else
+		{
+			let temp = Number(sessionStorage.getItem("liberal_cards"));
+			sessionStorage.setItem("liberal_cards", temp+1);
+		}
+		
+		// write the message
+		document.getElementById("top_title").innerHTML = "Read this out loud";
+		
+		let text = "PUBLIC ANNOUNCE:<br>After 3 failed government proposal, the caos brought the acceptation of the first policy of the deck, whatever it is.<br>";
+		text += "The new policy is a ";
+		
+		if(pol == "f")
+		{
+			text += '<font color="red">fascist</font>';
+		}
+		else
+		{
+			text += '<font color="blue">liberal</font>';
+		}
+		text += " one";
+		
+		document.getElementById("comment").innerHTML = text;
+		
+		// update tracker
+		sessionStorage.setItem("tracker", "0");
+	}
 	else
 	{
 		console.log("error: unrecognized phase " + phase);
@@ -693,7 +748,18 @@ function postPlay()
 			}
 		}
 		else {
-			sessionStorage.setItem("phase", "election");
+			
+			// check the tracker
+			let tracker = Number(sessionStorage.getItem("tracker"));
+			
+			if(tracker == 3)
+			{
+				sessionStorage.setItem("phase", "caos");
+			}
+			else
+			{
+				sessionStorage.setItem("phase", "election");
+			}
 		}
 		
 		sessionStorage.removeItem("vote_result");
@@ -735,6 +801,8 @@ function postPlay()
 		// reset election tracker
 		sessionStorage.setItem("tracker", 0);
 		
+		turnStep();
+		
 		// play the choosen card
 		if(card_picked == "l")
 		{
@@ -745,8 +813,12 @@ function postPlay()
 			if( liberal == 5 )
 			{
 				sessionStorage.setItem("phase", "liberal_win_cards");
-				turnStep();
-				return;
+			}
+			else
+			{
+				// now show the result
+				sessionStorage.setItem("last_policy", card_picked);
+				sessionStorage.setItem("phase", "legislative_result");
 			}
 		}
 		else
@@ -758,15 +830,14 @@ function postPlay()
 			if( fas == sessionStorage.getItem("empire_cards_target") )
 			{
 				sessionStorage.setItem("phase", "empire_win_cards");
-				turnStep();
-				return;
+			}
+			else
+			{
+				// now show the result
+				sessionStorage.setItem("last_policy", card_picked);
+				sessionStorage.setItem("phase", "legislative_result");
 			}
 		}
-		
-		// now show the result
-		turnStep();
-		sessionStorage.setItem("last_policy", card_picked);
-		sessionStorage.setItem("phase", "legislative_result");
 	}
 	else if(phase == "legislative_result")
 	{
@@ -789,6 +860,24 @@ function postPlay()
 		// start a new game
 		window.location = "index.html";
 		return;
+	}
+	else if(phase == "caos")
+	{
+		let liberal = Number(sessionStorage.getItem("liberal_cards"));
+		let fas = Number(sessionStorage.getItem("empire_cards"))
+			
+		if( liberal == 5 )
+		{
+			sessionStorage.setItem("phase", "liberal_win_cards");
+		}
+		else if(fas == 6)
+		{
+			sessionStorage.setItem("phase", "empire_win_cards");
+		}
+		else
+		{
+			sessionStorage.setItem("phase", "election");
+		}
 	}
 	else
 	{
