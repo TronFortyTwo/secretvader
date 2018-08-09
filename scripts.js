@@ -198,6 +198,8 @@ function playLoaded()
 	var emperor_num = sessionStorage.getItem("emperor");
 	var emperor = sessionStorage.getObject("player" + emperor_num);
 	var player_num = sessionStorage.getItem("player_number");
+	var chancellor_num = sessionStorage.getItem("chancellor");
+	var chancellor = sessionStorage.getObject("player" + chancellor_num);
 	
 	// -----------------------------------------------------------------
 	// first round just to show roles
@@ -317,9 +319,6 @@ function playLoaded()
 	// show election results
 	else if(phase === "vote_result")
 	{
-		var chancellor_num = sessionStorage.getItem("chancellor");
-		var chancellor = sessionStorage.getObject("player" + chancellor_num);
-		
 		// check votation results
 		let yes = 0;
 		let no = 0;
@@ -387,6 +386,93 @@ function playLoaded()
 		// update text
 		document.getElementById("comment").innerHTML = text;
 	}
+	// -----------------------------------------------------------------
+	// the emperor takes three cards,
+	else if(phase == "legislative_emperor")
+	{
+		// title
+		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		
+		// text
+		let text = "You now have to choose one of three policies shown below one to discard.<br>";
+		text += "The other two will be passed to the chancellor <b>" + chancellor.name + "</b>. He will then choose the one to approve that will go on the board";
+		text += "<br><br>";
+		document.getElementById("comment").innerHTML = text;
+		
+		// draw the three cards
+		let pile = sessionStorage.getItem("pile").split("");
+		let discard_pile = sessionStorage.getItem("discard_pile").split("");
+		
+		// reshuffle pile if needed
+		if(pile.length < 3) {
+			pile = pile.concat(discard_pile);
+			discard_pile = [];
+			pile = shuffle(pile);
+		}
+		
+		let card1 = pile.pop();
+		sessionStorage.setItem("card1", card1);
+		let card2 = pile.pop();
+		sessionStorage.setItem("card2", card2);
+		let card3 = pile.pop();
+		sessionStorage.setItem("card3", card3);
+		
+		// the three card buttons
+		let b1 = document.getElementById("button");
+		b1.value = "CARD 1: ";
+		if(card1 == "f") {
+			b1.value += "fascist";
+		} else {
+			b1.value += "liberal";
+		}
+		b1.onclick = function(){ pickCard(1); };
+	
+		let bre = document.createElement("br");
+		let bre2 = document.createElement("br");
+		b1.parentNode.appendChild(bre);
+		b1.parentNode.appendChild(bre2);
+		
+		let b2 = document.createElement("input");
+		b2.type = "button";
+		b2.value = "CARD 2: ";
+		if(card2 == "f") {
+			b2.value += "fascist";
+		} else {
+			b2.value += "liberal";
+		}
+		b2.onclick = function(){ pickCard(2); };
+		b1.parentNode.appendChild(b2);
+		
+		
+		let bre3 = document.createElement("br");
+		let bre4 = document.createElement("br");
+		b1.parentNode.appendChild(bre3);
+		b1.parentNode.appendChild(bre4);
+		
+		let b3 = document.createElement("input");
+		b3.type = "button";
+		b3.value = "CARD 3: ";
+		if(card3 == "f") {
+			b3.value += "fascist";
+		} else {
+			b3.value += "liberal";
+		}
+		b3.onclick = function(){ pickCard(3); };
+		b1.parentNode.appendChild(b3);
+		
+		// update piles
+		sessionStorage.setItem("pile", pile);
+		sessionStorage.setItem("discard_pile", discard_pile);
+		
+		// turn
+		sessionStorage.setItem("turn", chancellor_num);
+	}
+	// -----------------------------------------------------------------
+	// the chancellor takes two cards,
+	else if(phase == "legislative_chancellor")
+	{
+		
+	}
 	else
 	{
 		console.log("error: unrecognized phase " + phase);
@@ -438,6 +524,29 @@ function postPlay()
 		
 		sessionStorage.removeItem("vote_result");
 	}
+	else if(phase == "legislative_emperor")
+	{
+		let discard_pile = sessionStorage.getItem("discard_pile").split("");
+		
+		let discarded_num = sessionStorage.getItem("card_picked");
+		let discarded_card = sessionStorage.getItem("card"+discarded_num);
+		
+		// put the card in the discard pile
+		discard_pile.push(discarded_card);
+		sessionStorage.setItem("discard_pile", discard_pile);
+		
+		// now put the two cards left as card1 and card2
+		if(discarded_num != 3)
+		{
+			sessionStorage.setItem("card"+discarded_num, sessionStorage.getItem("card3"));
+		}
+		
+		sessionStorage.setItem("phase", "legislative_chancellor");
+	}
+	else if(phase == "legislative_chancellor")
+	{
+		
+	}
 	else
 	{
 		console.log("error: unrecognized phase " + phase);
@@ -463,6 +572,14 @@ function setChancellor( pl )
 function vote( v, who )
 {
 	sessionStorage.setItem("vote"+who, v );
+	
+	postPlay();
+}
+// ---------------------------------------------------------------------
+// called from HTML, it sets what cards has been choosen
+function pickCard( n )
+{
+	sessionStorage.setItem("card_picked", n);
 	
 	postPlay();
 }
