@@ -20,25 +20,25 @@ function random(min, max)
 }
 
 // ---------------------------------------------------------------------
-// Shuffle an array
-function shuffle(array) {
-    let counter = array.length;
+// Shuffle a string
+function shuffle( pile ) {
+	let counter = pile.length;
 
-    // While there are elements in the array
-    while (counter > 0) {
-        // Pick a random index
-        let index = Math.floor(Math.random() * counter);
+	// While there are elements in the array
+	while (counter > 0) {
+		// Pick a random index
+		let index = Math.floor(Math.random() * counter);
 
-        // Decrease counter by 1
-        counter--;
+		// Decrease counter by 1
+		counter--;
 
-        // And swap the last element with it
-        let temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
+		// And swap the last element with it
+		let temp = pile[counter];
+		pile[counter] = pile[index];
+		pile[index] = temp;
+	}
 
-    return array;
+	return pile;
 }
 
 // ---------------------------------------------------------------------
@@ -158,10 +158,8 @@ function setGame()
 	
 	// create the pile of policies
 	var discard_pile = [];
-	var pile = [
-		"l","l","l","l","l","l",
-		"f","f","f","f","f","f","f","f","f","f","f"
-	];
+	var pile = 
+		"llllllfffffffffff";
 	pile = shuffle(pile);
 	sessionStorage.setItem("pile", pile);
 	sessionStorage.setItem("discard_pile", discard_pile);
@@ -245,7 +243,7 @@ function playLoaded()
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
 		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
-		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").length + " | discarded: " + sessionStorage.getItem("discard_pile").length + "<br>";
 		
 		
 		document.getElementById("comment").innerHTML = text;
@@ -305,7 +303,7 @@ function playLoaded()
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
 		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
-		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").length + " | discarded: " + sessionStorage.getItem("discard_pile").length + "<br>";
 		
 		document.getElementById("comment").innerHTML = text;
 		
@@ -395,7 +393,7 @@ function playLoaded()
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
 		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
-		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").length + " | discarded: " + sessionStorage.getItem("discard_pile").length + "<br>";
 		
 		
 		// update text
@@ -414,28 +412,31 @@ function playLoaded()
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
 		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
-		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").length + " | discarded: " + sessionStorage.getItem("discard_pile").length + "<br>";
 		
 		text += "<br><br>";
 		document.getElementById("comment").innerHTML = text;
 		
 		// draw the three cards
-		let pile = sessionStorage.getItem("pile").split("");
-		let discard_pile = sessionStorage.getItem("discard_pile").split("");
+		let pile = sessionStorage.getItem("pile");
+		let discard_pile = sessionStorage.getItem("discard_pile");
 		
 		// reshuffle pile if needed
 		if(pile.length < 3) {
 			pile = pile.concat(discard_pile);
-			discard_pile = [];
+			discard_pile = "";
 			pile = shuffle(pile);
 		}
 		
-		let card1 = pile.pop();
+		let card1 = pile[pile.length -1];
 		sessionStorage.setItem("card1", card1);
-		let card2 = pile.pop();
+		let card2 = pile[pile.length -2];
 		sessionStorage.setItem("card2", card2);
-		let card3 = pile.pop();
+		let card3 = pile[pile.length -3]
 		sessionStorage.setItem("card3", card3);
+		pile = pile.slice(0,-1);
+		pile = pile.slice(0,-1);
+		pile = pile.slice(0,-1);
 		
 		// the three card buttons
 		let b1 = document.getElementById("button");
@@ -500,7 +501,7 @@ function playLoaded()
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
 		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
-		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").length + " | discarded: " + sessionStorage.getItem("discard_pile").length + "<br>";
 		
 		text += "<br><br>";
 		document.getElementById("comment").innerHTML = text;
@@ -559,7 +560,7 @@ function playLoaded()
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
 		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
-		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").length + " | discarded: " + sessionStorage.getItem("discard_pile").length + "<br>";
 		
 		// update emperor
 		let new_emperor = Number(sessionStorage.getItem("emperor"));
@@ -592,7 +593,7 @@ function playLoaded()
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
 		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
-		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").length + " | discarded: " + sessionStorage.getItem("discard_pile").length + "<br>";
 		
 		document.getElementById("comment").innerHTML = text;
 	}
@@ -613,7 +614,7 @@ function playLoaded()
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
 		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
-		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").length + " | discarded: " + sessionStorage.getItem("discard_pile").length + "<br>";
 		
 		document.getElementById("comment").innerHTML = text;
 	}
@@ -634,7 +635,7 @@ function playLoaded()
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
 		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
 		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
-		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").length + " | discarded: " + sessionStorage.getItem("discard_pile").length + "<br>";
 		
 		document.getElementById("comment").innerHTML = text;
 	}
@@ -699,13 +700,13 @@ function postPlay()
 	}
 	else if(phase == "legislative_emperor")
 	{
-		let discard_pile = sessionStorage.getItem("discard_pile").split("");
+		let discard_pile = sessionStorage.getItem("discard_pile");
 		
 		let discarded_num = sessionStorage.getItem("card_picked");
 		let discarded_card = sessionStorage.getItem("card"+discarded_num);
 		
 		// put the card in the discard pile
-		discard_pile.push(discarded_card);
+		discard_pile.concat("", discarded_card);
 		sessionStorage.setItem("discard_pile", discard_pile);
 		
 		// now put the two cards left as card1 and card2
@@ -718,7 +719,7 @@ function postPlay()
 	}
 	else if(phase == "legislative_chancellor")
 	{
-		let discard_pile = sessionStorage.getItem("discard_pile").split("");
+		let discard_pile = sessionStorage.getItem("discard_pile");
 		
 		let picked = sessionStorage.getItem("card_picked");
 		let discarded;
@@ -726,7 +727,7 @@ function postPlay()
 		(picked == 1) ? discarder=2: discarded=1;
 		
 		// discard the other card
-		discard_pile.push( sessionStorage.getItem("card"+discarded) );
+		discard_pile.concat("", sessionStorage.getItem("card"+discarded) );
 		sessionStorage.setItem("discard_pile", discard_pile);
 		
 		let card_picked = sessionStorage.getItem("card"+picked);
