@@ -1,3 +1,10 @@
+/*
+Theme Name: Secret Vader Theme
+Description: Simple Theme aimed at mobiles 
+Author: Emanuele Sorce
+Author URI: https://github.com/tronfortytwo
+*/
+
 * {
 	margin-right: 2.5vw;
 	margin-left: 2.5vw;
@@ -24,6 +31,10 @@ h5 {
 }
 h6 {
 	font-size: 2.01vw;
+}
+
+p {
+	font-size: 3vw;
 }
 
 button {
