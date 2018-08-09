@@ -173,6 +173,9 @@ function setGame()
 	sessionStorage.setItem("empire_cards", "0");
 	sessionStorage.setItem("liberal_cards", "0");
 	
+	// how many fascist cards are needed for imperialists to win
+	sessionStorage.setItem("empire_cards_target", 6);
+	
 	// at the start of the game, just do a turn showing each one role
 	sessionStorage.setItem("phase", "first_round");
 }
@@ -387,7 +390,7 @@ function playLoaded()
 		document.getElementById("comment").innerHTML = text;
 	}
 	// -----------------------------------------------------------------
-	// the emperor takes three cards,
+	// the emperor takes three cards and choose one to discard
 	else if(phase == "legislative_emperor")
 	{
 		// title
@@ -468,8 +471,83 @@ function playLoaded()
 		sessionStorage.setItem("turn", chancellor_num);
 	}
 	// -----------------------------------------------------------------
-	// the chancellor takes two cards,
+	// the chancellor takes two cards and choose one to apply
 	else if(phase == "legislative_chancellor")
+	{
+		// title
+		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		
+		// text
+		let text = "You now have to choose one of the two policies shown below that the Emperor <b>" + emperor.name + "</b> has passed to you.<br>";
+		text += "The one you choose will be the policy approved that will go on the board, while the other one will be discarded";
+		text += "<br><br>";
+		document.getElementById("comment").innerHTML = text;
+		
+		let card1 = sessionStorage.getItem("card1");
+		let card2 = sessionStorage.getItem("card2");
+		
+		// card 1
+		let b1 = document.getElementById("button");
+		b1.value = "CARD 1: ";
+		if(card1 == "f") {
+			b1.value += "fascist";
+		} else {
+			b1.value += "liberal";
+		}
+		b1.onclick = function(){ pickCard(1); };
+		
+		let bre = document.createElement("br");
+		let bre2 = document.createElement("br");
+		b1.parentNode.appendChild(bre);
+		b1.parentNode.appendChild(bre2);
+		
+		let b2 = document.createElement("input");
+		b2.type = "button";
+		b2.value = "CARD 2: ";
+		if(card2 == "f") {
+			b2.value += "fascist";
+		} else {
+			b2.value += "liberal";
+		}
+		b2.onclick = function(){ pickCard(2); };
+		b1.parentNode.appendChild(b2);
+	}
+	// -----------------------------------------------------------------
+	// show the result of the last legislative session
+	else if(phase == "legislative_result")
+	{
+		let last_policy = sessionStorage.getItem("last_policy");
+		
+		document.getElementById("top_title").innerHTML = "Read this out loud";
+		
+		let text = "PUBLIC ANNOUNCE:<br>the government with<br>";
+		text += "- <b>" + emperor.name + "</b> as Emperor<br>";
+		text += "- <b>" + chancellor.name + "</b> as chancellor<br>";
+		text += "has just approved a new ";
+		if( last_policy == "l")
+		{
+			text += '<font color="blue">liberal</font><br>';
+		}
+		else
+		{
+			text += '<font color="red">fascist</font><br>';
+		}
+		text += " policy<br><br>"
+		text += "Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		
+		document.getElementById("comment").innerHTML = text;
+	}
+	// -----------------------------------------------------------------
+	// liberals just won by making enought liberal policies
+	else if(phase == "liberal_win_cards")
+	{
+		
+	}
+	// -----------------------------------------------------------------
+	// imperlists just won by making enought fascist policies
+	else if(phase == "empire_win_cards")
 	{
 		
 	}
@@ -544,6 +622,65 @@ function postPlay()
 		sessionStorage.setItem("phase", "legislative_chancellor");
 	}
 	else if(phase == "legislative_chancellor")
+	{
+		let discard_pile = sessionStorage.getItem("discard_pile").split("");
+		
+		let picked = sessionStorage.getItem("card_picked");
+		let discarded;
+		
+		(picked == 1) ? discarder=2: discarded=1;
+		
+		// discard the other card
+		discard_pile.push( sessionStorage.getItem("card"+discarded) );
+		sessionStorage.setItem("discard_pile", discard_pile);
+		
+		let card_picked = sessionStorage.getItem("card"+picked);
+		
+		// reset election tracker
+		sessionStorage.setItem("tracker", 0);
+		
+		// play the choosen card
+		if(card_picked == "l")
+		{
+			let liberal = Number(sessionStorage.getItem("liberal_cards"));
+			liberal++;
+			sessionStorage.setItem("liberal_cards", liberal);
+			
+			if( liberal == 5 )
+			{
+				sessionStorage.setItem("phase", "liberal_win_cards");
+				turnStep();
+				return;
+			}
+		}
+		else
+		{
+			let fas = Number(sessionStorage.getItem("empire_cards"));
+			fas++;
+			sessionStorage.setItem("empire_cards", fas);
+			
+			if( fas == sessionStorage.getItem("empire_cards_target") )
+			{
+				sessionStorage.setItem("phase", "empire_win_cards");
+				turnStep();
+				return;
+			}
+		}
+		
+		// now show the result
+		turnStep();
+		sessionStorage.setItem("last_policy", card_picked);
+		sessionStorage.setItem("phase", "legislative_result");
+	}
+	else if(phase == "legislative_result")
+	{
+		
+	}
+	else if(phase == "liberal_win_cards")
+	{
+		
+	}
+	else if(phase == "empire_win_cards")
 	{
 		
 	}
