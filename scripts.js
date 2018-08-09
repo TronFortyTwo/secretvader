@@ -173,9 +173,6 @@ function setGame()
 	sessionStorage.setItem("empire_cards", "0");
 	sessionStorage.setItem("liberal_cards", "0");
 	
-	// how many fascist cards are needed for imperialists to win
-	sessionStorage.setItem("empire_cards_target", 6);
-	
 	// at the start of the game, just do a turn showing each one role
 	sessionStorage.setItem("phase", "first_round");
 }
@@ -246,8 +243,10 @@ function playLoaded()
 		
 		let text = "As candidate Emperor, you have to choose a player to be the candidate chancellor:";
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
-		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
-		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3<br>";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		
 		
 		document.getElementById("comment").innerHTML = text;
 		
@@ -304,8 +303,10 @@ function playLoaded()
 		text += emperor.name + "</b> as new Emperor<br>- <b>";
 		text += chancellor.name + "</b> as new Chancellor<br>Please, don't say your vote until everyone has voted<br<br>";
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
-		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
-		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3<br>";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		
 		document.getElementById("comment").innerHTML = text;
 		
 		let byes = document.getElementById("button");
@@ -392,8 +393,10 @@ function playLoaded()
 			sessionStorage.setItem("chancellor", "0");
 		}
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
-		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
-		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3<br>";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		
 		
 		// update text
 		document.getElementById("comment").innerHTML = text;
@@ -409,8 +412,10 @@ function playLoaded()
 		let text = "You now have to choose one of three policies shown below one to discard.<br>";
 		text += "The other two will be passed to the chancellor <b>" + chancellor.name + "</b>. He will then choose the one to approve that will go on the board";
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
-		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
-		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3<br>";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		
 		text += "<br><br>";
 		document.getElementById("comment").innerHTML = text;
 		
@@ -493,8 +498,10 @@ function playLoaded()
 		let text = "You now have to choose one of the two policies shown below that the Emperor <b>" + emperor.name + "</b> has passed to you.<br>";
 		text += "The one you choose will be the policy approved that will go on the board, while the other one will be discarded";
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
-		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
-		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3<br>";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		
 		text += "<br><br>";
 		document.getElementById("comment").innerHTML = text;
 		
@@ -550,8 +557,9 @@ function playLoaded()
 		
 		text += " policy"
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
-		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
-		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3<br>";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
 		
 		// update emperor
 		let new_emperor = Number(sessionStorage.getItem("emperor"));
@@ -582,7 +590,9 @@ function playLoaded()
 			text += "- <b>" + temp.name + "</b> (" + temp.role + ")<br>";
 		}
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
-		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
 		
 		document.getElementById("comment").innerHTML = text;
 	}
@@ -601,7 +611,30 @@ function playLoaded()
 			text += "- <b>" + temp.name + "</b> (" + temp.role + ")<br>";
 		}
 		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
-		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of " + sessionStorage.getItem("empire_cards_target");
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
+		
+		document.getElementById("comment").innerHTML = text;
+	}
+	// -----------------------------------------------------------------
+	// imperlists just won by making enought fascist policies
+	else if(phase == "empire_win_vader_elected")
+	{
+		document.getElementById("top_title").innerHTML = "IMPERIALISTS WINS!!";
+		
+		let text = "PUBLIC ANNOUNCE:<br>Electing Dart Vader as the new chancellor, the imperialists won the game!<br>";
+		text += "<br>Roles:<br>"
+		for(let i=1; i<=player_num; i++)
+		{
+			let temp = sessionStorage.getObject("player"+i);
+			
+			text += "- <b>" + temp.name + "</b> (" + temp.role + ")<br>";
+		}
+		text += "<br><br>Total liberal policies approved: " + sessionStorage.getItem("liberal_cards") + " of 5";
+		text += "<br>Total fascist policies approved: " + sessionStorage.getItem("empire_cards") + " of 6";
+		text += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " of 3";
+		text += "<br>Policy pile: " + sessionStorage.getItem("pile").split("").length + " | discarded: " + sessionStorage.getItem("discard_pile").split("").length + "<br>";
 		
 		document.getElementById("comment").innerHTML = text;
 	}
@@ -649,10 +682,18 @@ function postPlay()
 	{
 		let result = sessionStorage.getItem("vote_result");
 		
-		if(result == "y")
-			sessionStorage.setItem("phase", "legislative_emperor");
-		else
+		if(result == "y") {
+			// if vader is chancellor
+			if (( sessionStorage.getObject( "player"+sessionStorage.getItem("chancellor") ).role == "Dart Vader" ) && (Number(sessionStorage.getItem("empire_cards")) >= 3) ) {
+				sessionStorage.setItem("phase", "empire_win_vader_elected");
+			}
+			else {
+				sessionStorage.setItem("phase", "legislative_emperor");
+			}
+		}
+		else {
 			sessionStorage.setItem("phase", "election");
+		}
 		
 		sessionStorage.removeItem("vote_result");
 	}
@@ -732,11 +773,21 @@ function postPlay()
 	}
 	else if(phase == "liberal_win_cards")
 	{
-		
+		// start a new game
+		window.location = "index.html";
+		return;
 	}
 	else if(phase == "empire_win_cards")
 	{
-		
+		// start a new game
+		window.location = "index.html";
+		return;
+	}
+	else if(phase == "empire_win_vader_elected")
+	{
+		// start a new game
+		window.location = "index.html";
+		return;
 	}
 	else
 	{
