@@ -1099,7 +1099,8 @@ function postPlay()
 	}
 	else if(phase == "emperor_power_detective")
 	{
-		localStorage.setItem("turn", localStorage.getItem("emperor"));
+		localStorage.setItem("turn", Number(localStorage.getItem("emperor"))+1);
+		localStorage.setItem("emperor", localStorage.getItem("turn"));
 		localStorage.setItem("phase", "election");
 	}
 	else if(phase == "emperor_power_see")
