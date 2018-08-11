@@ -431,13 +431,6 @@ function playLoaded()
 		let pile = localStorage.getItem("pile");
 		let discard_pile = localStorage.getItem("discard_pile");
 		
-		// reshuffle pile if needed
-		if(pile.length < 3) {
-			pile += discard_pile;
-			discard_pile = "";
-			pile = pile.shuffle();
-		}
-		
 		let card1 = pile[pile.length -1];
 		localStorage.setItem("card1", card1);
 		pile = pile.slice(0,-1);
@@ -658,17 +651,6 @@ function playLoaded()
 	{
 		// take the first policy of the pile
 		let pile = localStorage.getItem("pile");
-		if(pile.length == 0)
-		{
-			let discard_pile = localStorage.getItem("discard_pile");
-			pile = discard_pile;
-			
-			pile = pile.shuffle();
-			
-			discard_pile = "";
-			
-			localStorage.setItem("discard_pile", discard_pile);
-		}
 		let pol = pile[pile.length-1];
 		pile = pile.slice(0,-1);
 		localStorage.setItem("pile", pile);
@@ -706,6 +688,15 @@ function playLoaded()
 		
 		// update tracker
 		localStorage.setItem("tracker", "0");
+		
+		// reshuffle the cards if needed
+		if(pile.length < 3)
+		{
+			pile += discard_pile;
+			pile = pile.shuffle();
+			localStorage.setItem("pile", pile);
+			localStorage.setItem("discard_pile", "");
+		}
 	}
 	// -----------------------------------------------------------------
 	// the emperor kills a player
@@ -826,7 +817,33 @@ function playLoaded()
 	// the emperor sees the 3 top card of the pile
 	else if(phase == "emperor_power_see")
 	{
+		// title
+		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
+		// comment
+		let text = "SPECIAL PRESIDENTIAL POWER:<br>You can see the top 3 cards of the policy deck.";
+		text += boardStats();
+		
+		// show them
+		var pile = localStorage.getItem("pile");
+		
+		text += "<br>";
+		for(var i=1; i!=4; i++)
+		{
+			text += "CARD " + i + ": ";
+			
+			if(pile[pile.length-i] == "f")
+			{
+				text += '<font color="red">fascist</font>';
+			}
+			else
+			{
+				text += '<font color="blue">liberal</font>';
+			}
+			text += "<br>";
+		}
+		
+		document.getElementById("comment").innerHTML = text;
 	}
 	// -----------------------------------------------------------------
 	// the emperor chooses the next candidate emperor
@@ -984,6 +1001,16 @@ function postPlay()
 				localStorage.setItem("phase", "legislative_result");
 			}
 		}
+		
+		// reshuffle the cards if needed
+		let pile = localStorage.getItem("pile");
+		if(pile.length < 3)
+		{
+			pile += discard_pile;
+			pile = pile.shuffle();
+			localStorage.setItem("pile", pile);
+			localStorage.setItem("discard_pile", "");
+		}
 	}
 	else if(phase == "legislative_result")
 	{
@@ -1052,7 +1079,7 @@ function postPlay()
 	else if(phase == "caos")
 	{
 		let liberal = Number(localStorage.getItem("liberal_cards"));
-		let fas = Number(localStorage.getItem("empire_cards"))
+		let fas = Number(localStorage.getItem("empire_cards"));
 			
 		if( liberal == 5 )
 		{
@@ -1097,21 +1124,19 @@ function postPlay()
 			localStorage.setItem("phase", "liberal_win_kill");
 		}
 	}
-	else if(phase == "emperor_power_detective")
-	{
-		localStorage.setItem("turn", Number(localStorage.getItem("emperor"))+1);
-		localStorage.setItem("emperor", localStorage.getItem("turn"));
-		localStorage.setItem("phase", "election");
-	}
-	else if(phase == "emperor_power_see")
+	else if
+	(
+		phase == "emperor_power_detective" ||
+		phase == "emperor_power_see"
+	)
 	{
 		localStorage.setItem("turn", localStorage.getItem("emperor"));
+		let turn = turnStep();
+		localStorage.setItem("emperor", turn);
 		localStorage.setItem("phase", "election");
 	}
 	else if(phase == "emperor_power_choose")
 	{
-		localStorage.setItem("turn", localStorage.getItem("emperor"));
-		localStorage.setItem("phase", "election");
 	}
 	else if(phase == "post_kill")
 	{
