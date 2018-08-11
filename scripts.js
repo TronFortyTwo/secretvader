@@ -22,20 +22,24 @@ function random(min, max)
 // ---------------------------------------------------------------------
 // Shuffle a string
 function shuffle( pile ) {
-	let counter = pile.length;
+	
+	for(var times = 16; times!=0; times--)
+	{
+		let counter = pile.length;
 
-	// While there are elements in the array
-	while (counter > 0) {
-		// Pick a random index
-		let index = Math.floor(Math.random() * counter);
+		// While there are elements in the array
+		while (counter > 0) {
+			// Pick a random index
+			let index = Math.floor(Math.random() * counter);
 
-		// Decrease counter by 1
-		counter--;
+			// Decrease counter by 1
+			counter--;
 
-		// And swap the last element with it
-		let temp = pile[counter];
-		pile[counter] = pile[index];
-		pile[index] = temp;
+			// And swap the last element with it
+			let temp = pile[counter];
+			pile[counter] = pile[index];
+			pile[index] = temp;
+		}
 	}
 
 	return pile;
@@ -425,7 +429,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
 		// text
-		let text = "You now have to choose one of three policies shown below one to discard.<br>";
+		let text = "You now have to choose one of three policies shown below to discard.<br>";
 		text += "The other two will be passed to the chancellor <b>" + chancellor.name + "</b>. He will then choose the one to approve that will go on the board";
 		text += boardStats();
 		
@@ -735,10 +739,8 @@ function playLoaded()
 		for(var i=1; i<=player_num; i++)
 		{
 			let temp_player = localStorage.getObject("player"+i);
-			let past_e = localStorage.getItem("past_emperor");
-			let past_c = localStorage.getItem("past_chancellor");
 			
-			if((i != emperor_num) && (localStorage.getObject("player"+i).alive == true))
+			if((i != turn) && (localStorage.getObject("player"+i).alive == true))
 			{
 				let button = document.createElement("input");
 				button.type = "button";
@@ -755,6 +757,20 @@ function playLoaded()
 				el.appendChild(bre2);
 			}
 		}
+	}
+	// -----------------------------------------------------------------
+	// Tell who has been killed by the president
+	else if(phase == "post_kill")
+	{
+		// title
+		document.getElementById("top_title").innerHTML = "Read this out loud";
+		
+		// comment
+		let text = "PUBLIC ANNOUNCE:<br>The president used his special power, and killed ";
+		text += "<b>" + localStorage.getObject("player" + localStorage.getItem("killed_player")) + "</b>.";
+		
+		text += boardStats();
+		document.getElementById("comment").innerHTML = text;
 	}
 	// -----------------------------------------------------------------
 	// the emperor sees a player orientation
@@ -1009,8 +1025,8 @@ function postPlay()
 		
 		if(killed_player.role != "Dart Vader")
 		{
-			localStorage.setItem("turn", localStorage.getItem("emperor"));
-			localStorage.setItem("phase", "election");
+			turnStep();
+			localStorage.setItem("phase", "post_kill");
 		}
 		else
 		{
@@ -1029,6 +1045,11 @@ function postPlay()
 		localStorage.setItem("phase", "election");
 	}
 	else if(phase == "emperor_power_choose")
+	{
+		localStorage.setItem("turn", localStorage.getItem("emperor"));
+		localStorage.setItem("phase", "election");
+	}
+	else if(phase == "post_kill")
 	{
 		localStorage.setItem("turn", localStorage.getItem("emperor"));
 		localStorage.setItem("phase", "election");
