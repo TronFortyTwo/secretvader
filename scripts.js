@@ -21,28 +21,18 @@ function random(min, max)
 
 // ---------------------------------------------------------------------
 // Shuffle a string
-function shuffle( pile ) {
-	
-	for(var times = 16; times!=0; times--)
-	{
-		let counter = pile.length;
+String.prototype.shuffle = function () {
+	let a = this.split("");
+	let n = a.length;
 
-		// While there are elements in the array
-		while (counter > 0) {
-			// Pick a random index
-			let index = Math.floor(Math.random() * counter);
-
-			// Decrease counter by 1
-			counter--;
-
-			// And swap the last element with it
-			let temp = pile[counter];
-			pile[counter] = pile[index];
-			pile[index] = temp;
-		}
-	}
-
-	return pile;
+    for(var i=n-1; i>0; i--)
+    {
+        let j = Math.floor(Math.random() * (i + 1));
+        let tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
+    }
+    return a.join("");
 }
 
 // ---------------------------------------------------------------------
@@ -195,7 +185,7 @@ function setGame()
 	var discard_pile = [];
 	var pile = 
 		"llllllfffffffffff";
-	pile = shuffle(pile);
+	pile.shuffle();
 	localStorage.setItem("pile", pile);
 	localStorage.setItem("discard_pile", discard_pile);
 	
@@ -442,9 +432,9 @@ function playLoaded()
 		
 		// reshuffle pile if needed
 		if(pile.length < 3) {
-			pile = pile.concat("", discard_pile);
+			pile += discard_pile;
 			discard_pile = "";
-			pile = shuffle(pile);
+			pile.shuffle();
 		}
 		
 		let card1 = pile[pile.length -1];
@@ -670,8 +660,9 @@ function playLoaded()
 		if(pile.length == 0)
 		{
 			let discard_pile = localStorage.getItem("discard_pile");
+			pile = discard_pile;
 			
-			pile = shuffle(discard_pile);
+			pile.shuffle();
 			
 			discard_pile = "";
 			
@@ -767,7 +758,7 @@ function playLoaded()
 		
 		// comment
 		let text = "PUBLIC ANNOUNCE:<br>The president used his special power, and killed ";
-		text += "<b>" + localStorage.getObject("player" + localStorage.getItem("killed_player")) + "</b>.";
+		text += "<b>" + localStorage.getObject("player" + localStorage.getItem("killed_player")).name + "</b>.";
 		
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
@@ -803,6 +794,7 @@ function postPlay()
 {
 	var phase = localStorage.getItem("phase");
 	var emperor_num = Number(localStorage.getItem("emperor"));
+	var player_num = localStorage.getItem("player_number");
 	
 	if(phase === "first_round" )
 	{
@@ -947,8 +939,14 @@ function postPlay()
 		// update emperor
 		let new_emperor = Number(localStorage.getItem("emperor"));
 		new_emperor++;
-		if(new_emperor > player_num){
-			new_emperor = 1;
+		if( new_emperor > player_number);
+			new_emperor=1;
+		
+		while( localStorage.getObject("player"+new_emperor).alive == false )
+		{
+			new_emperor++;
+			if( new_emperor > player_number);
+				new_emperor=1;
 		}
 		localStorage.setItem("emperor", new_emperor);
 		
@@ -1022,6 +1020,16 @@ function postPlay()
 		let killed_player = localStorage.getObject("player"+pl);
 		killed_player.alive = false;
 		localStorage.setObject("player"+pl, killed_player);
+		
+		// be sure the new Emperor is not the one killed
+		let new_emperor = emperor_num;
+		while( localStorage.getObject("player"+new_emperor).alive == false )
+		{
+			new_emperor++;
+			if( new_emperor > player_number);
+				new_emperor=1;
+		}
+		localStorage.setItem("emperor", new_emperor);
 		
 		if(killed_player.role != "Dart Vader")
 		{
