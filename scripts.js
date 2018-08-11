@@ -939,7 +939,7 @@ function postPlay()
 		// update emperor
 		let new_emperor = Number(localStorage.getItem("emperor"));
 		new_emperor++;
-		if( new_emperor > player_number);
+		if( new_emperor > player_num);
 			new_emperor=1;
 		
 		while( localStorage.getObject("player"+new_emperor).alive == false )
@@ -1022,11 +1022,13 @@ function postPlay()
 		localStorage.setObject("player"+pl, killed_player);
 		
 		// be sure the new Emperor is not the one killed
-		let new_emperor = emperor_num;
+		let new_emperor = Number(localStorage.getItem("turn"))+1;
+		if(new_emperor > player_num)
+			new_emperor = 1;
 		while( localStorage.getObject("player"+new_emperor).alive == false )
 		{
 			new_emperor++;
-			if( new_emperor > player_number);
+			if(new_emperor > player_num);
 				new_emperor=1;
 		}
 		localStorage.setItem("emperor", new_emperor);
