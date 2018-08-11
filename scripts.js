@@ -185,7 +185,8 @@ function setGame()
 	var discard_pile = [];
 	var pile = 
 		"llllllfffffffffff";
-	pile.shuffle();
+	pile = pile.shuffle();
+	console.log("pile: " + pile);
 	localStorage.setItem("pile", pile);
 	localStorage.setItem("discard_pile", discard_pile);
 	
@@ -434,7 +435,7 @@ function playLoaded()
 		if(pile.length < 3) {
 			pile += discard_pile;
 			discard_pile = "";
-			pile.shuffle();
+			pile = pile.shuffle();
 		}
 		
 		let card1 = pile[pile.length -1];
@@ -662,7 +663,7 @@ function playLoaded()
 			let discard_pile = localStorage.getItem("discard_pile");
 			pile = discard_pile;
 			
-			pile.shuffle();
+			pile = pile.shuffle();
 			
 			discard_pile = "";
 			
@@ -767,7 +768,59 @@ function playLoaded()
 	// the emperor sees a player orientation
 	else if(phase == "emperor_power_detective")
 	{
+		if( localStorage.getItem("exit_power_detective") == "y" )
+		{
+			localStorage.setItem("exit_power_detective", "n");
+			postPlay();
+		}
 		
+		// remove standard button
+		removeButton();
+		
+		// title
+		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		
+		// comment
+		let text = "SPECIAL PRESIDENTIAL POWER:<br>You can choose a player and see if is liberal or fascist. Choose carefully!";
+		text += boardStats();
+		document.getElementById("comment").innerHTML = text;
+		
+		// function
+		function setButton(button, i, fun) {
+			button.onclick = function(){
+				
+				if( localStorage.getObject("player"+i).role == "liberal" )
+					alert("The player you investigated is liberal");
+				else
+					alert("The player you investigated is fascist");
+				localStorage.setItem("exit_power_detective", "y");
+				
+				window.location = "play.html";
+			};
+		}
+		
+		// loop
+		for(var i=1; i<=player_num; i++)
+		{
+			let temp_player = localStorage.getObject("player"+i);
+			
+			if(i != turn)
+			{
+				let button = document.createElement("input");
+				button.type = "button";
+				button.value = temp_player.name;
+				
+				setButton(button, i);
+				
+				let el = document.getElementById("last_break").parentNode;
+				el.appendChild(button);
+				
+				let bre = document.createElement("br");
+				let bre2 = document.createElement("br");
+				el.appendChild(bre);
+				el.appendChild(bre2);
+			}
+		}
 	}
 	// -----------------------------------------------------------------
 	// the emperor sees the 3 top card of the pile
