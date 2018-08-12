@@ -638,8 +638,8 @@ function playLoaded()
 			let vetob = document.createElement("input");
 			vetob.type = "button";
 			vetob.value = "Propose veto to the president";
-			b2.onclick = function(){ askVeto(); };
-			b1.parentNode.appendChild(b2);
+			vetob.onclick = function(){ askVeto(); };
+			b1.parentNode.appendChild(vetob);
 		}
 	}
 	// -----------------------------------------------------------------
@@ -1177,7 +1177,7 @@ function postPlay()
 			tracker++;
 			sessionStorage.setItem("tracker", tracker);
 			
-			sessionStorage.setItem("emperor", nextPlayer(Number(localStorage.getItem("emperor"))));
+			sessionStorage.setItem("emperor", nextPlayer(Number(localStorage.getItem("turn"))));
 			sessionStorage.setItem("turn", localStorage.getItem("emperor"));
 			if(tracker < 3) {
 				sessionStorage.setItem("phase", "election");
