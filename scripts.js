@@ -89,6 +89,25 @@ Storage.prototype.getObject = function(key) {
     return JSON.parse(this.getItem(key));
 }
 // ---------------------------------------------------------------------
+// helper functions for players
+function getName(pl)
+{
+	return localStorage.getObject("player"+pl).name;
+}
+function getRole(pl)
+{
+	return localStorage.getObject("player"+pl).role;
+}
+function isAlive(pl)
+{
+	return localStorage.getObject("player"+pl).alive;
+}
+function getPlayer(pl)
+{
+	return localStorage.getObject("player"+pl);
+}
+
+// ---------------------------------------------------------------------
 // Get a random number in a range
 function random(min, max)
 {
@@ -142,7 +161,7 @@ function nextPlayer( start )
 		if(next > player_num)
 			next = 1;
 	}
-	while( localStorage.getObject("player"+next).alive == false )
+	while( isAlive(next) == false )
 	
 	return next;
 }
@@ -150,7 +169,6 @@ function nextPlayer( start )
 // subroutine that update the turn
 function turnStep()
 {
-	let player_num = Number(localStorage.getItem("player_number"));
 	let next_turn = Number(localStorage.getItem("turn"));
 	
 	next_turn = nextPlayer( next_turn );
@@ -199,7 +217,7 @@ function setName( setnum )
 	{
 		document.getElementById("p_title").innerHTML = "Player " + (setnum+1) + ":";
 		document.getElementById("p_button").onclick = function(){ setName(setnum+1); };
-		document.getElementById("p_text").value = "Player " + (setnum+1) + " name";
+		document.getElementById("p_text").value = "Player " + (setnum+1);
 	}
 }
 
@@ -215,7 +233,7 @@ function setGame()
 	// assign what player is V.
 	var vnum = random(1, player_num);
 	
-	var vader = localStorage.getObject("player"+vnum);
+	var vader = getPlayer(vnum);
 	
 	vader.role = "Dart Vader";
 	
@@ -237,7 +255,7 @@ function setGame()
 	while(num_empire > 0) {
 		let empire_num = random(1, player_num);
 		
-		let p = localStorage.getObject("player"+empire_num);
+		let p = getPlayer(empire_num);
 		
 		if(p.role !== "liberal") {
 			continue;
@@ -256,7 +274,7 @@ function setGame()
 	var first_emperor = random(1, player_num);
 	localStorage.setItem("emperor", first_emperor);
 	
-	console.log( localStorage.getObject("player"+first_emperor).name + " is first emperor");
+	console.log( getName(first_emperor) + " is first emperor");
 	
 	// this is the first election
 	localStorage.setItem("chancellor", "0");
@@ -279,13 +297,16 @@ function setGame()
 	
 	// at the start of the game, just do a turn showing each one role
 	localStorage.setItem("phase", "first_round");
+	
+	// veto
+	localStorage.setItem("veto", "0");
 }
 
 // ---------------------------------------------------------------------
 // Make the one who has the phone in the hand pass it
 function passLoaded()
 {
-	var name = localStorage.getObject("player" + localStorage.getItem("turn") ).name;
+	let name = getName(localStorage.getItem("turn"));
 	
 	document.getElementById("notice").innerHTML = "Pass the phone to " + name;
 	document.getElementById("button").value = "OK, now I am " + name;
@@ -300,10 +321,10 @@ function playLoaded()
 	var turn = localStorage.getItem("turn");
 	var player = localStorage.getObject("player" + turn );
 	var emperor_num = localStorage.getItem("emperor");
-	var emperor = localStorage.getObject("player" + emperor_num);
+	var emperor = getPlayer(emperor_num);
 	var player_num = localStorage.getItem("player_number");
 	var chancellor_num = localStorage.getItem("chancellor");
-	var chancellor = localStorage.getObject("player" + chancellor_num);
+	var chancellor = getPlayer(chancellor_num);
 	
 	// -----------------------------------------------------------------
 	// first round just to show roles
@@ -317,7 +338,7 @@ function playLoaded()
 			
 			for(var i=1; i<=player_num; i++)
 			{
-				let temp_player = localStorage.getObject("player"+i);
+				let temp_player = getPlayer(i);
 				
 				if(temp_player.name != player.name)
 				{
@@ -360,41 +381,39 @@ function playLoaded()
 		}
 		
 		// loop
+		let past_e = localStorage.getItem("past_emperor");
+		let past_c = localStorage.getItem("past_chancellor");
+		
 		for(var i=1; i<=player_num; i++)
 		{
-			let temp_player = localStorage.getObject("player"+i);
-			let past_e = localStorage.getItem("past_emperor");
-			let past_c = localStorage.getItem("past_chancellor");
+			if (
+				i == turn ||
+				i == past_c ||
+				(Number(player_num) > 6 && i == past_e) ||
+				isAlive(i) == false
+			) { continue; }
 			
-			if( i != turn &&
-				i != past_c &&
-				( (Number(player_num) < 7) || i != past_e) &&
-				localStorage.getObject("player"+i).alive == true
-			)
-			{
-				let button = document.createElement("input");
-				button.type = "button";
-				button.value = temp_player.name;
+			let temp_player = getPlayer(i);
 				
-				setButton(button, i);
+			let button = document.createElement("input");
+			button.type = "button";
+			button.value = temp_player.name;
 				
-				let el = document.getElementById("last_break");
-				el.parentNode.appendChild(button);
+			setButton(button, i);
 				
-				let bre = document.createElement("br");
-				let bre2 = document.createElement("br");
-				el.parentNode.appendChild(bre);
-				el.parentNode.appendChild(bre2);
-			}
+			let el = document.getElementById("last_break");
+			el.parentNode.appendChild(button);
+				
+			let bre = document.createElement("br");
+			let bre2 = document.createElement("br");
+			el.parentNode.appendChild(bre);
+			el.parentNode.appendChild(bre2);
 		}
 	}
 	// -----------------------------------------------------------------
 	// do a round asking for the votes
 	else if( phase === "vote_round")
 	{
-		let chancellor_num = localStorage.getItem("chancellor");
-		let chancellor = localStorage.getObject("player" + chancellor_num);
-		
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
 		let text = "You have to vote for the proposed new govern:<br>- <b>";
@@ -434,7 +453,7 @@ function playLoaded()
 		
 		for(var i=1; i<=player_num; i++)
 		{
-			if( localStorage.getObject("player"+i).alive == false )
+			if( isAlive(i) == false )
 				continue;
 			
 			if( localStorage.getItem("vote"+i) == "y" )
@@ -463,11 +482,11 @@ function playLoaded()
 		
 		for(var i=1; i<=player_num; i++)
 		{
-			if(localStorage.getObject("player"+i).alive == false)
+			if(isAlive(i) == false)
 				continue;
 			
 			let temp = localStorage.getItem("vote"+i); 
-			text += "- <b>" + localStorage.getObject("player"+i).name + "</b> : " + temp + "<br>"
+			text += "- <b>" + getName(i) + "</b> : " + temp + "<br>"
 		}
 		
 		if(approved)
@@ -484,7 +503,7 @@ function playLoaded()
 			let new_emperor = nextPlayer(Number(localStorage.getItem("emperor")));
 			
 			text += "<br>After this failure, the opportunity to create a new government is given to ";
-			text += "<b>" + localStorage.getObject("player"+new_emperor).name + "</b>";
+			text += "<b>" + getName(new_emperor) + "</b>";
 			
 			localStorage.setItem("vote_result", "n");
 			localStorage.setItem("tracker", Number(localStorage.getItem("tracker"))+1);
@@ -658,9 +677,7 @@ function playLoaded()
 		text += "<br>Roles:<br>";
 		for(let i=1; i<=player_num; i++)
 		{
-			let temp = localStorage.getObject("player"+i);
-			
-			text += "- <b>" + temp.name + "</b> (" + temp.role + ")<br>";
+			text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")<br>";
 		}
 		text += boardStats();
 		
@@ -676,9 +693,7 @@ function playLoaded()
 		text += "<br>Roles:<br>";
 		for(let i=1; i<=player_num; i++)
 		{
-			let temp = localStorage.getObject("player"+i);
-			
-			text += "- <b>" + temp.name + "</b> (" + temp.role + ")<br>";
+			text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")<br>";
 		}
 		text += boardStats();
 		
@@ -694,9 +709,7 @@ function playLoaded()
 		text += "<br>Roles:<br>"
 		for(let i=1; i<=player_num; i++)
 		{
-			let temp = localStorage.getObject("player"+i);
-			
-			text += "- <b>" + temp.name + "</b> (" + temp.role + ")<br>";
+			text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")<br>";
 		}
 		text += boardStats();
 		
@@ -712,9 +725,7 @@ function playLoaded()
 		text += "<br>Roles:<br>"
 		for(let i=1; i<=player_num; i++)
 		{
-			let temp = localStorage.getObject("player"+i);
-			
-			text += "- <b>" + temp.name + "</b> (" + temp.role + ")<br>";
+			text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")<br>";
 		}
 		text += boardStats();
 		
@@ -848,13 +859,11 @@ function playLoaded()
 		// loop
 		for(var i=1; i<=player_num; i++)
 		{
-			let temp_player = localStorage.getObject("player"+i);
-			
 			if(i != turn)
 			{
 				let button = document.createElement("input");
 				button.type = "button";
-				button.value = temp_player.name;
+				button.value = getName(i);
 				
 				setButton(button, i);
 				
@@ -925,11 +934,9 @@ function playLoaded()
 		{
 			if(i != turn)
 			{
-				let temp_player = localStorage.getObject("player"+i);
-				
 				let button = document.createElement("input");
 				button.type = "button";
-				button.value = temp_player.name;
+				button.value = getName(i);
 				
 				setButton(button, i);
 				
@@ -995,7 +1002,7 @@ function postPlay()
 		
 		if(result == "y") {
 			// if vader is chancellor
-			if (( localStorage.getObject( "player"+localStorage.getItem("chancellor") ).role == "Dart Vader" ) && (Number(localStorage.getItem("empire_cards")) >= 3) ) {
+			if (( getRole(localStorage.getItem("chancellor")) == "Dart Vader" ) && (Number(localStorage.getItem("empire_cards")) >= 3) ) {
 				localStorage.setItem("phase", "empire_win_vader_elected");
 			}
 			else {
@@ -1003,7 +1010,6 @@ function postPlay()
 			}
 		}
 		else {
-			
 			// check the tracker
 			let tracker = Number(localStorage.getItem("tracker"));
 			
@@ -1185,7 +1191,7 @@ function postPlay()
 	else if(phase == "emperor_power_kill")
 	{
 		let pl = localStorage.getItem("killed_player");
-		let killed_player = localStorage.getObject("player"+pl);
+		let killed_player = getPlayer(pl);
 		killed_player.alive = false;
 		localStorage.setObject("player"+pl, killed_player);
 		
