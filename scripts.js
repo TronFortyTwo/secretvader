@@ -424,6 +424,9 @@ function playLoaded()
 	// show election results
 	else if(phase === "vote_result")
 	{
+		// write things down
+		document.getElementById("top_title").innerHTML = "Read this out loud";
+		
 		// check votation results
 		let yes = 0;
 		let no = 0;
@@ -431,6 +434,9 @@ function playLoaded()
 		
 		for(var i=1; i<=player_num; i++)
 		{
+			if( localStorage.getObject("player"+i).alive == false )
+				continue;
+			
 			if( localStorage.getItem("vote"+i) == "y" )
 				yes++;
 			else
@@ -440,9 +446,6 @@ function playLoaded()
 		if(yes > no){
 			approved = true;
 		}
-		
-		// write things down
-		document.getElementById("top_title").innerHTML = "Read this out loud";
 		
 		let text = "PUBLIC ANNOUNCE:<br>the new candidate government with<br>";
 		text += "- <b>" + emperor.name + "</b> as Emperor<br>";
@@ -457,11 +460,16 @@ function playLoaded()
 			text += '<font color="red">rejected</font><br>';
 		}
 		text += "<br>VOTES:<br>";
+		
 		for(var i=1; i<=player_num; i++)
 		{
-			let temp = localStorage.getItem("vote"+i);
+			if(localStorage.getObject("player"+i).alive == false)
+				continue;
+			
+			let temp = localStorage.getItem("vote"+i); 
 			text += "- <b>" + localStorage.getObject("player"+i).name + "</b> : " + temp + "<br>"
 		}
+		
 		if(approved)
 		{
 			text += "<br>Now the new government will create a new policy<br>";
