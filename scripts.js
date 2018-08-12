@@ -1,8 +1,85 @@
-function setPlayerNames()
+// ---------------------------------------------------------------------
+// Abstract the piles
+function pile_create()
 {
-	window.location = "playerSetName.html";
+	localStorage.setItem("draw_pile", String("llllllfffffffffff").shuffle());
+	localStorage.setItem("discard_pile", "");
+	
+	console.log("pile: " + localStorage.getItem("draw_pile"));
 }
+function pile_draw()
+{
+	let draw_pile = localStorage.getItem("draw_pile");
+	let discard_pile = localStorage.getItem("discard_pile");
+	
+	let card = draw_pile[draw_pile.length-1];
+	draw_pile = draw_pile.slice(0,-1);
+	
+	// save the new pile
+	pile_save(draw_pile, discard_pile);
+	
+	// reshuffle
+	pile_shuffle();
+	
+	return card;
+};
+function pile_draw3()
+{
+	let draw_pile = localStorage.getItem("draw_pile");
+	
+	let cards = [];
+	cards.push(draw_pile[draw_pile.length-1]);
+	draw_pile = draw_pile.slice(0,-1);
+	cards.push(draw_pile[draw_pile.length-1]);
+	draw_pile = draw_pile.slice(0,-1);
+	cards.push(draw_pile[draw_pile.length-1]);
+	draw_pile = draw_pile.slice(0,-1);
+	
+	localStorage.setItem("draw_pile", draw_pile);
+	
+	return cards;
+};
+function pile_show3()
+{
+	let draw_pile = localStorage.getItem("draw_pile");
+	let cards = [];
+	cards.push(draw_pile[draw_pile.length-1]);
+	cards.push(draw_pile[draw_pile.length-2]);
+	cards.push(draw_pile[draw_pile.length-3]);
+	return cards;
+}
+function pile_shuffle()
+{
+	let draw_pile = localStorage.getItem("draw_pile");
+	
+	if( draw_pile.length >= 3 ){ return; }
 
+	let discard_pile = localStorage.getItem("discard_pile");
+	
+	draw_pile += discard_pile;
+	discard_pile = "";
+	draw_pile = draw_pile.shuffle();
+	
+	pile_save(draw_pile, discard_pile);
+};
+function pile_save(p, dp)
+{
+	localStorage.setItem("draw_pile", p);
+	localStorage.setItem("discard_pile", dp);
+};
+function pile_info()
+{
+	let draw_pile = localStorage.getItem("draw_pile");
+	let discard_pile = localStorage.getItem("discard_pile");
+	
+	return "Draw deck: " + draw_pile.length + " | discarded: " + discard_pile.length;
+}
+function pile_discard(c)
+{
+	let d = localStorage.getItem("discard_pile");
+	d += c;
+	localStorage.setItem("discard_pile", d);
+}
 // ---------------------------------------------------------------------
 // Extend localStorage to store objects
 Storage.prototype.setObject = function(key, value) {
@@ -11,14 +88,12 @@ Storage.prototype.setObject = function(key, value) {
 Storage.prototype.getObject = function(key) {
     return JSON.parse(this.getItem(key));
 }
-
 // ---------------------------------------------------------------------
 // Get a random number in a range
 function random(min, max)
 {
     return Math.floor(Math.random()*(max-min+1)+min);
 }
-
 // ---------------------------------------------------------------------
 // Shuffle a string
 String.prototype.shuffle = function () {
@@ -34,7 +109,6 @@ String.prototype.shuffle = function () {
     }
     return a.join("");
 }
-
 // ---------------------------------------------------------------------
 // return the stats about the board
 function boardStats()
@@ -42,12 +116,10 @@ function boardStats()
 	let str = "<br><br>Total liberal policies approved: " + localStorage.getItem("liberal_cards") + " of 5";
 	str += "<br>Total fascist policies approved: " + localStorage.getItem("empire_cards") + " of 6";
 	str += "<br>Election Tracker: " + localStorage.getItem("tracker") + " of 3";
-	str += "<br>Policy pile: " + localStorage.getItem("pile").length;
-	str += " | discarded: " + localStorage.getItem("discard_pile").length + "<br>";
+	str += "<br>" + pile_info() + "<br>";
 	
 	return str;
 }
-
 // ---------------------------------------------------------------------
 // subroutine that removes the standard 'Ok, i got it' button
 function removeButton()
@@ -59,27 +131,40 @@ function removeButton()
 	}
 }
 // ---------------------------------------------------------------------
+// Get next player after the one given
+function nextPlayer( start )
+{
+	let next = start;
+	let player_num = Number(localStorage.getItem("player_number"));
+	
+	do {
+		next++;
+		if(next > player_num)
+			next = 1;
+	}
+	while( localStorage.getObject("player"+next).alive == false )
+	
+	return next;
+}
+// ---------------------------------------------------------------------
 // subroutine that update the turn
 function turnStep()
 {
 	let player_num = Number(localStorage.getItem("player_number"));
 	let next_turn = Number(localStorage.getItem("turn"));
 	
-	do {
-		// update turn
-		next_turn++;
-		
-		// restart over if it's the case
-		if( next_turn > player_num)
-			next_turn = 1;
-	}
-	while( localStorage.getObject("player"+next_turn).alive == false )
-		
+	next_turn = nextPlayer( next_turn );
+	
 	localStorage.setItem("turn", next_turn);
 	
 	return next_turn;
 }
-
+// ---------------------------------------------------------------------
+// boh
+function setPlayerNames()
+{
+	window.location = "playerSetName.html";
+}
 // ---------------------------------------------------------------------
 // Start a new game
 function create( pnum )
@@ -177,18 +262,13 @@ function setGame()
 	localStorage.setItem("chancellor", "0");
 	localStorage.setItem("past_emperor", "0");
 	localStorage.setItem("past_chancellor", "0");
+	localStorage.setItem("real_new_emperor", "0");
 	
 	// The first emperor is also the first to play
 	localStorage.setItem("turn", first_emperor);
 	
 	// create the pile of policies
-	var discard_pile = [];
-	var pile = 
-		"llllllfffffffffff";
-	pile = pile.shuffle();
-	console.log("pile: " + pile);
-	localStorage.setItem("pile", pile);
-	localStorage.setItem("discard_pile", discard_pile);
+	pile_create();
 	
 	// election tracker
 	localStorage.setItem("tracker", "0");
@@ -393,10 +473,7 @@ function playLoaded()
 		}
 		else
 		{
-			let new_emperor = Number(localStorage.getItem("emperor"));
-			new_emperor++;
-			if(new_emperor > player_num)
-				new_emperor = 1;
+			let new_emperor = nextPlayer(Number(localStorage.getItem("emperor")));
 			
 			text += "<br>After this failure, the opportunity to create a new government is given to ";
 			text += "<b>" + localStorage.getObject("player"+new_emperor).name + "</b>";
@@ -428,25 +505,15 @@ function playLoaded()
 		document.getElementById("comment").innerHTML = text;
 		
 		// draw the three cards
-		let pile = localStorage.getItem("pile");
-		let discard_pile = localStorage.getItem("discard_pile");
-		
-		let card1 = pile[pile.length -1];
-		localStorage.setItem("card1", card1);
-		pile = pile.slice(0,-1);
-		
-		let card2 = pile[pile.length -1];
-		localStorage.setItem("card2", card2);
-		pile = pile.slice(0,-1);
-		
-		let card3 = pile[pile.length -1];
-		localStorage.setItem("card3", card3);
-		pile = pile.slice(0,-1);
+		let cards = pile_draw3();
+		localStorage.setItem("card1", cards[0]);
+		localStorage.setItem("card2", cards[1]);
+		localStorage.setItem("card3", cards[2]);
 		
 		// the three card buttons
 		let b1 = document.getElementById("button");
 		b1.value = "CARD 1: ";
-		if(card1 == "f") {
+		if(cards[0] == "f") {
 			b1.value += "fascist";
 		} else {
 			b1.value += "liberal";
@@ -461,7 +528,7 @@ function playLoaded()
 		let b2 = document.createElement("input");
 		b2.type = "button";
 		b2.value = "CARD 2: ";
-		if(card2 == "f") {
+		if(cards[1] == "f") {
 			b2.value += "fascist";
 		} else {
 			b2.value += "liberal";
@@ -478,17 +545,13 @@ function playLoaded()
 		let b3 = document.createElement("input");
 		b3.type = "button";
 		b3.value = "CARD 3: ";
-		if(card3 == "f") {
+		if(cards[2] == "f") {
 			b3.value += "fascist";
 		} else {
 			b3.value += "liberal";
 		}
 		b3.onclick = function(){ pickCard(3); };
 		b1.parentNode.appendChild(b3);
-		
-		// update piles
-		localStorage.setItem("pile", pile);
-		localStorage.setItem("discard_pile", discard_pile);
 		
 		// turn
 		localStorage.setItem("turn", chancellor_num);
@@ -562,10 +625,14 @@ function playLoaded()
 		text += boardStats();
 		
 		// update emperor
-		let new_emperor = Number(localStorage.getItem("emperor"));
-		new_emperor++;
-		if(new_emperor > player_num){
-			new_emperor = 1;
+		let real_new_emperor = Number(localStorage.getItem("real_new_emperor"));
+		let new_emperor;
+		
+		if(real_new_emperor == 0) {
+			new_emperor = nextPlayer(Number(localStorage.getItem("emperor")));
+		}
+		else {
+			new_emperor = nextPlayer(real_new_emperor-1);
 		}
 		
 		text += "<br> Now a new government will be created. The candidate Emperor now is <b>";
@@ -650,22 +717,7 @@ function playLoaded()
 	else if(phase == "caos")
 	{
 		// take the first policy of the pile
-		let pile = localStorage.getItem("pile");
-		let pol = pile[pile.length-1];
-		pile = pile.slice(0,-1);
-		localStorage.setItem("pile", pile);
-		
-		// apply the policy
-		if(pol == "f")
-		{
-			let temp = Number(localStorage.getItem("empire_cards"));
-			localStorage.setItem("empire_cards", temp+1);
-		}
-		else
-		{
-			let temp = Number(localStorage.getItem("liberal_cards"));
-			localStorage.setItem("liberal_cards", temp+1);
-		}
+		let pol = pile_draw();
 		
 		// write the message
 		document.getElementById("top_title").innerHTML = "Read this out loud";
@@ -675,10 +727,14 @@ function playLoaded()
 		
 		if(pol == "f")
 		{
+			let temp = Number(localStorage.getItem("empire_cards"));
+			localStorage.setItem("empire_cards", temp+1);
 			text += '<font color="red">fascist</font>';
 		}
 		else
 		{
+			let temp = Number(localStorage.getItem("liberal_cards"));
+			localStorage.setItem("liberal_cards", temp+1);
 			text += '<font color="blue">liberal</font>';
 		}
 		text += " one";
@@ -688,15 +744,6 @@ function playLoaded()
 		
 		// update tracker
 		localStorage.setItem("tracker", "0");
-		
-		// reshuffle the cards if needed
-		if(pile.length < 3)
-		{
-			pile += discard_pile;
-			pile = pile.shuffle();
-			localStorage.setItem("pile", pile);
-			localStorage.setItem("discard_pile", "");
-		}
 	}
 	// -----------------------------------------------------------------
 	// the emperor kills a player
@@ -777,7 +824,7 @@ function playLoaded()
 		document.getElementById("comment").innerHTML = text;
 		
 		// function
-		function setButton(button, i, fun) {
+		function setButton(button, i) {
 			button.onclick = function(){
 				
 				if( localStorage.getObject("player"+i).role == "liberal" )
@@ -825,14 +872,14 @@ function playLoaded()
 		text += boardStats();
 		
 		// show them
-		var pile = localStorage.getItem("pile");
+		let cards = pile_show3();
 		
 		text += "<br>";
-		for(var i=1; i!=4; i++)
+		for(var i=0; i!=3; i++)
 		{
-			text += "CARD " + i + ": ";
+			text += "CARD " + (i+1) + ": ";
 			
-			if(pile[pile.length-i] == "f")
+			if(cards[i] == "f")
 			{
 				text += '<font color="red">fascist</font>';
 			}
@@ -849,7 +896,44 @@ function playLoaded()
 	// the emperor chooses the next candidate emperor
 	else if(phase == "emperor_power_choose")
 	{
+		// remove standard button
+		removeButton();
 		
+		// title
+		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		
+		// comment
+		let text = "SPECIAL PRESIDENTIAL POWER:<br>You can choose a player to be the next Emperor. After his ruling, the next president will follow the original order. Choose carefully!";
+		text += boardStats();
+		document.getElementById("comment").innerHTML = text;
+		
+		// function
+		function setButton(button, i) {
+			button.onclick = function(){ powerPick(i) };
+		}
+		
+		// loop
+		for(var i=1; i<=player_num; i++)
+		{
+			if(i != turn)
+			{
+				let temp_player = localStorage.getObject("player"+i);
+				
+				let button = document.createElement("input");
+				button.type = "button";
+				button.value = temp_player.name;
+				
+				setButton(button, i);
+				
+				let el = document.getElementById("last_break").parentNode;
+				el.appendChild(button);
+				
+				let bre = document.createElement("br");
+				let bre2 = document.createElement("br");
+				el.appendChild(bre);
+				el.appendChild(bre2);
+			}
+		}
 	}
 	//
 	else
@@ -866,6 +950,7 @@ function postPlay()
 	var emperor_num = Number(localStorage.getItem("emperor"));
 	var player_num = localStorage.getItem("player_number");
 	
+	// -----------------------------------------------------------------
 	if(phase === "first_round" )
 	{
 		let turn = turnStep();
@@ -876,6 +961,7 @@ function postPlay()
 			localStorage.setItem("phase", "election");
 		}
 	}
+	// -----------------------------------------------------------------
 	else if(phase === "election")
 	{
 		turnStep();
@@ -883,6 +969,7 @@ function postPlay()
 		// after, we must do a round of votes
 		localStorage.setItem("phase", "vote_round");
 	}
+	// -----------------------------------------------------------------
 	else if(phase === "vote_round")
 	{
 		let turn = turnStep();
@@ -893,6 +980,7 @@ function postPlay()
 			localStorage.setItem("phase", "vote_result");
 		}
 	}
+	// -----------------------------------------------------------------
 	else if(phase === "vote_result")
 	{
 		let result = localStorage.getItem("vote_result");
@@ -923,16 +1011,13 @@ function postPlay()
 		
 		localStorage.removeItem("vote_result");
 	}
+	// -----------------------------------------------------------------
 	else if(phase == "legislative_emperor")
 	{
-		let discard_pile = localStorage.getItem("discard_pile");
-		
 		let discarded_num = localStorage.getItem("card_picked");
 		let discarded_card = localStorage.getItem("card"+discarded_num);
 		
-		// put the card in the discard pile
-		discard_pile += discarded_card;
-		localStorage.setItem("discard_pile", discard_pile);
+		pile_discard(discarded_card);
 		
 		// now put the two cards left as card1 and card2
 		if(discarded_num != 3)
@@ -942,10 +1027,9 @@ function postPlay()
 		
 		localStorage.setItem("phase", "legislative_chancellor");
 	}
+	// -----------------------------------------------------------------
 	else if(phase == "legislative_chancellor")
 	{
-		let discard_pile = localStorage.getItem("discard_pile");
-		
 		let picked = localStorage.getItem("card_picked");
 		let discarded;
 		
@@ -956,14 +1040,17 @@ function postPlay()
 			discarded = 1;
 		}
 		// discard the other card
-		discard_pile += localStorage.getItem("card"+discarded);
-		localStorage.setItem("discard_pile", discard_pile);
+		pile_discard(localStorage.getItem("card"+discarded));
+		
+		// we ended doing work with cards, so now we can shuffle if needed
+		pile_shuffle();
 		
 		let card_picked = localStorage.getItem("card"+picked);
 		
 		// reset election tracker
 		localStorage.setItem("tracker", 0);
 		
+		// advance the turn
 		turnStep();
 		
 		// play the choosen card
@@ -1001,33 +1088,23 @@ function postPlay()
 				localStorage.setItem("phase", "legislative_result");
 			}
 		}
-		
-		// reshuffle the cards if needed
-		let pile = localStorage.getItem("pile");
-		if(pile.length < 3)
-		{
-			pile += discard_pile;
-			pile = pile.shuffle();
-			localStorage.setItem("pile", pile);
-			localStorage.setItem("discard_pile", "");
-		}
 	}
+	// -----------------------------------------------------------------
 	else if(phase == "legislative_result")
 	{
 		let fas_cards = Number(localStorage.getItem("empire_cards"));
 		let player_num = Number(localStorage.getItem("player_number"));
 		// update emperor
-		let new_emperor = Number(localStorage.getItem("emperor"));
-		new_emperor++;
-		if( new_emperor > player_num);
-			new_emperor=1;
-		
-		while( localStorage.getObject("player"+new_emperor).alive == false )
-		{
-			new_emperor++;
-			if( new_emperor > player_number);
-				new_emperor=1;
+		let real_new_emperor = Number(localStorage.getItem("real_new_emperor"));
+		let new_emperor;
+		if(real_new_emperor == 0) {
+			new_emperor = nextPlayer(Number(localStorage.getItem("emperor")));
 		}
+		else {
+			new_emperor = nextPlayer(real_new_emperor-1);
+			localStorage.setItem("real_new_emperor", "0");
+		}
+		
 		localStorage.setItem("emperor", new_emperor);
 		
 		if( localStorage.getItem("last_policy") == "f")
@@ -1064,6 +1141,7 @@ function postPlay()
 				localStorage.setItem("phase", "election");
 		}
 	}
+	// -----------------------------------------------------------------
 	else if
 	(
 		phase == "liberal_win_cards" ||
@@ -1076,6 +1154,7 @@ function postPlay()
 		window.location = "index.html";
 		return;
 	}
+	// -----------------------------------------------------------------
 	else if(phase == "caos")
 	{
 		let liberal = Number(localStorage.getItem("liberal_cards"));
@@ -1094,6 +1173,7 @@ function postPlay()
 			localStorage.setItem("phase", "election");
 		}
 	}
+	// -----------------------------------------------------------------
 	else if(phase == "emperor_power_kill")
 	{
 		let pl = localStorage.getItem("killed_player");
@@ -1101,17 +1181,8 @@ function postPlay()
 		killed_player.alive = false;
 		localStorage.setObject("player"+pl, killed_player);
 		
-		// be sure the new Emperor is not the one killed
-		let new_emperor = Number(localStorage.getItem("turn"))+1;
-		if(new_emperor > player_num)
-			new_emperor = 1;
-		while( localStorage.getObject("player"+new_emperor).alive == false )
-		{
-			new_emperor++;
-			if(new_emperor > player_num);
-				new_emperor=1;
-		}
-		localStorage.setItem("emperor", new_emperor);
+		// the new emperor
+		localStorage.setItem("emperor", nextPlayer(Number(localStorage.getItem("turn"))));
 		
 		if(killed_player.role != "Dart Vader")
 		{
@@ -1124,6 +1195,7 @@ function postPlay()
 			localStorage.setItem("phase", "liberal_win_kill");
 		}
 	}
+	// -----------------------------------------------------------------
 	else if
 	(
 		phase == "emperor_power_detective" ||
@@ -1135,14 +1207,25 @@ function postPlay()
 		localStorage.setItem("emperor", turn);
 		localStorage.setItem("phase", "election");
 	}
+	// -----------------------------------------------------------------
 	else if(phase == "emperor_power_choose")
 	{
+		let choosen = localStorage.getItem("power_emperor");
+		
+		let real_new_emperor = nextPlayer(Number(localStorage.getItem("emperor")));
+		
+		localStorage.setItem("turn", choosen);
+		localStorage.setItem("emperor", choosen);
+		localStorage.setItem("real_new_emperor", real_new_emperor);
+		localStorage.setItem("phase", "election");
 	}
+	// -----------------------------------------------------------------
 	else if(phase == "post_kill")
 	{
 		localStorage.setItem("turn", localStorage.getItem("emperor"));
 		localStorage.setItem("phase", "election");
 	}
+	// -----------------------------------------------------------------
 	else
 	{
 		console.log("error: unrecognized phase " + phase);
@@ -1162,7 +1245,6 @@ function setChancellor( pl )
 	
 	postPlay();
 }
-
 // ---------------------------------------------------------------------
 // called from HTML, it sets the vote of someone
 function vote( v, who )
@@ -1179,12 +1261,19 @@ function pickCard( n )
 	
 	postPlay();
 }
-
 // ---------------------------------------------------------------------
 // called from HTML, it kills a player
 function kill(pl)
 {
 	localStorage.setItem("killed_player", pl);
+	
+	postPlay();
+}
+// ---------------------------------------------------------------------
+// called from HTML, it choose a player to be emperor for just a turn
+function powerPick(pl)
+{
+	localStorage.setItem("power_emperor", pl);
 	
 	postPlay();
 }
