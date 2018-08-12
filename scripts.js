@@ -298,8 +298,8 @@ function setGame()
 	// at the start of the game, just do a turn showing each one role
 	localStorage.setItem("phase", "first_round");
 	
-	// veto
-	localStorage.setItem("veto", "0");
+	// veto is not asked
+	localStorage.setItem("veto_asked", "n");
 }
 
 // ---------------------------------------------------------------------
@@ -626,6 +626,21 @@ function playLoaded()
 		}
 		b2.onclick = function(){ pickCard(2); };
 		b1.parentNode.appendChild(b2);
+		
+		// veto power
+		if( localStorage.getItem("empire_cards") == 5 )
+		{
+			let bre3 = document.createElement("br");
+			let bre4 = document.createElement("br");
+			b1.parentNode.appendChild(bre3);
+			b1.parentNode.appendChild(bre4);
+		
+			let vetob = document.createElement("input");
+			vetob.type = "button";
+			vetob.value = "Propose veto to the president";
+			b2.onclick = function(){ askVeto(); };
+			b1.parentNode.appendChild(b2);
+		}
 	}
 	// -----------------------------------------------------------------
 	// show the result of the last legislative session
@@ -950,6 +965,33 @@ function playLoaded()
 			}
 		}
 	}
+	// -----------------------------------------------------------------
+	// the emperor choose to accept the veto of the chancellor or not
+	else if(phase == "veto")
+	{
+		// title
+		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		
+		let text = "The chancellor asked for the veto<br>You can accept: no policy will be accepted, but the election tracker will advance of one.<br>Do you accept the veto proposal?";
+		text += boardStats();
+		document.getElementById("comment").innerHTML = text;
+		
+		let byes = document.getElementById("button");
+		byes.value = "Yes";
+		byes.onclick = function(){ acceptVeto(); };
+		
+		let bre = document.createElement("br");
+		let bre2 = document.createElement("br");
+		byes.parentNode.appendChild(bre);
+		byes.parentNode.appendChild(bre2);
+		
+		let bno = document.createElement("input");
+		bno.type = "button";
+		bno.value = "No";
+		bno.onclick = function(){ refuseVeto(); };
+		
+		byes.parentNode.appendChild(bno);
+	}
 	//
 	else
 	{
@@ -1044,62 +1086,103 @@ function postPlay()
 	// -----------------------------------------------------------------
 	else if(phase == "legislative_chancellor")
 	{
-		let picked = localStorage.getItem("card_picked");
-		let discarded;
-		
-		if(picked == 1) {
-			discarded = 2;
-		}
-		else {
-			discarded = 1;
-		}
-		// discard the other card
-		pile_discard(localStorage.getItem("card"+discarded));
-		
-		// we ended doing work with cards, so now we can shuffle if needed
-		pile_shuffle();
-		
-		let card_picked = localStorage.getItem("card"+picked);
-		
-		// reset election tracker
-		localStorage.setItem("tracker", 0);
-		
-		// advance the turn
-		turnStep();
-		
-		// play the choosen card
-		if(card_picked == "l")
+		// veto
+		if( localStorage.getItem("veto_asked") == "y" )
 		{
-			let liberal = Number(localStorage.getItem("liberal_cards"));
-			liberal++;
-			localStorage.setItem("liberal_cards", liberal);
+			// reset
+			localStorage.setItem("veto_asked", "n");
 			
-			if( liberal == 5 )
-			{
-				localStorage.setItem("phase", "liberal_win_cards");
-			}
-			else
-			{
-				// now show the result
-				localStorage.setItem("last_policy", card_picked);
-				localStorage.setItem("phase", "legislative_result");
-			}
+			localStorage.setItem("phase", "veto");
+			localStorage.setItem("turn", emperor_num);
 		}
 		else
 		{
-			let fas = Number(localStorage.getItem("empire_cards"));
-			fas++;
-			localStorage.setItem("empire_cards", fas);
-			
-			if( fas == 6 )
+			let picked = localStorage.getItem("card_picked");
+			let discarded;
+		
+			if(picked == 1) {
+				discarded = 2;
+			}
+			else {
+				discarded = 1;
+			}
+			// discard the other card
+			pile_discard(localStorage.getItem("card"+discarded));
+		
+			// we ended doing work with cards, so now we can shuffle if needed
+			pile_shuffle();
+		
+			let card_picked = localStorage.getItem("card"+picked);
+		
+			// reset election tracker
+			localStorage.setItem("tracker", 0);
+		
+			// advance the turn
+			turnStep();
+		
+			// play the choosen card
+			if(card_picked == "l")
 			{
-				localStorage.setItem("phase", "empire_win_cards");
+				let liberal = Number(localStorage.getItem("liberal_cards"));
+				liberal++;
+				localStorage.setItem("liberal_cards", liberal);
+			
+				if( liberal == 5 )
+				{
+					localStorage.setItem("phase", "liberal_win_cards");
+				}
+				else
+				{
+					// now show the result
+					localStorage.setItem("last_policy", card_picked);
+					localStorage.setItem("phase", "legislative_result");
+				}
 			}
 			else
 			{
-				// now show the result
-				localStorage.setItem("last_policy", card_picked);
-				localStorage.setItem("phase", "legislative_result");
+				let fas = Number(localStorage.getItem("empire_cards"));
+				fas++;
+				localStorage.setItem("empire_cards", fas);
+			
+				if( fas == 6 )
+				{
+					localStorage.setItem("phase", "empire_win_cards");
+				}
+				else
+				{
+					// now show the result
+					localStorage.setItem("last_policy", card_picked);
+					localStorage.setItem("phase", "legislative_result");
+				}
+			}
+		}
+	}
+	// -----------------------------------------------------------------
+	else if(phase == "veto")
+	{
+		if( localStorage.getItem("veto_accepted") == "n")
+		{
+			// if refused just repropose the cards to the chancellor
+			localStorage.setItem("phase", "legislative_chancellor");
+			localStorage.setItem("turn", localStorage.getItem("chancellor"));
+		}
+		else
+		{
+			// discard the two cards, update the election tracker and call a new election
+			pile_discard(localStorage.getItem("card1"));
+			pile_discard(localStorage.getItem("card2"));
+			pile_shuffle();
+			
+			let tracker = Number(sessionStorage.getItem("tracker"));
+			tracker++;
+			sessionStorage.setItem("tracker", tracker);
+			
+			sessionStorage.setItem("emperor", nextPlayer(Number(localStorage.getItem("emperor"))));
+			sessionStorage.setItem("turn", localStorage.getItem("emperor"));
+			if(tracker < 3) {
+				sessionStorage.setItem("phase", "election");
+			} else {
+				sessionStorage.setItem("phase", "caos");
 			}
 		}
 	}
@@ -1170,15 +1253,12 @@ function postPlay()
 	}
 	// -----------------------------------------------------------------
 	else if(phase == "caos")
-	{
-		let liberal = Number(localStorage.getItem("liberal_cards"));
-		let fas = Number(localStorage.getItem("empire_cards"));
-			
-		if( liberal == 5 )
+	{	
+		if( localStorage.getItem("liberal_cards") == 5 )
 		{
 			localStorage.setItem("phase", "liberal_win_cards");
 		}
-		else if(fas == 6)
+		else if(localStorage.getItem("empire_cards") == 6)
 		{
 			localStorage.setItem("phase", "empire_win_cards");
 		}
@@ -1239,7 +1319,6 @@ function postPlay()
 		localStorage.setItem("turn", localStorage.getItem("emperor"));
 		localStorage.setItem("phase", "election");
 	}
-	// -----------------------------------------------------------------
 	else
 	{
 		console.log("error: unrecognized phase " + phase);
@@ -1254,9 +1333,7 @@ function postPlay()
 function setChancellor( pl )
 {
 	localStorage.setItem("chancellor", pl);
-	
 	localStorage.setItem( "turn", Number(localStorage.getItem("turn") - 1));
-	
 	postPlay();
 }
 // ---------------------------------------------------------------------
@@ -1264,7 +1341,6 @@ function setChancellor( pl )
 function vote( v, who )
 {
 	localStorage.setItem("vote"+who, v );
-	
 	postPlay();
 }
 // ---------------------------------------------------------------------
@@ -1272,7 +1348,6 @@ function vote( v, who )
 function pickCard( n )
 {
 	localStorage.setItem("card_picked", n);
-	
 	postPlay();
 }
 // ---------------------------------------------------------------------
@@ -1280,7 +1355,6 @@ function pickCard( n )
 function kill(pl)
 {
 	localStorage.setItem("killed_player", pl);
-	
 	postPlay();
 }
 // ---------------------------------------------------------------------
@@ -1288,6 +1362,22 @@ function kill(pl)
 function powerPick(pl)
 {
 	localStorage.setItem("power_emperor", pl);
-	
+	postPlay();
+}
+// ---------------------------------------------------------------------
+// called from HTML
+function askVeto(pl)
+{
+	localStorage.setItem("veto_asked", "y");
+	postPlay();
+}
+function acceptVeto()
+{
+	localStorage.setItem("veto_accepted", "y");
+	postPlay();
+}
+function refuseVeto()
+{
+	localStorage.setItem("veto_accepted", "n");
 	postPlay();
 }
