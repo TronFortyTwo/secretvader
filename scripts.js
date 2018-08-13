@@ -985,8 +985,8 @@ function playLoaded()
 		}
 		
 		localStorage.setItem("turn", localStorage.getItem("emperor"));
-		let turn = turnStep();
-		localStorage.setItem("emperor", turn);
+		let new_turn = turnStep();
+		localStorage.setItem("emperor", new_turn);
 		localStorage.setItem("phase", "election");
 	}
 	// -----------------------------------------------------------------
