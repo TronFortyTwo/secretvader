@@ -89,7 +89,7 @@ Storage.prototype.getObject = function(key) {
     return JSON.parse(this.getItem(key));
 }
 // ---------------------------------------------------------------------
-// helper functions for players
+// abstract players
 function getName(pl)
 {
 	return localStorage.getObject("player"+pl).name;
@@ -106,7 +106,20 @@ function getPlayer(pl)
 {
 	return localStorage.getObject("player"+pl);
 }
-
+// ---------------------------------------------------------------------
+// abstract stuff
+function getPresident(){
+	return localStorage.getItem("emperor");
+}
+function setPresident(np){
+	localStorage.setItem("emperor", np);
+}
+function getChancellor(){
+	return localStorage.getItem("chancellor");
+}
+function setChancellor(np){
+	localStorage.setItem("chancellor", np);
+}
 // ---------------------------------------------------------------------
 // tracker abstraction
 function tracker_reset(){
@@ -181,7 +194,7 @@ function removeButton()
 // Get next player after the one given
 function nextPlayer( start )
 {
-	let next = start;
+	let next = Number(start);
 	let player_num = Number(localStorage.getItem("player_number"));
 	
 	do {
@@ -300,12 +313,12 @@ function setGame()
 	
 	// now choose who now is gonna be the first Emperor
 	var first_emperor = random(1, player_num);
-	localStorage.setItem("emperor", first_emperor);
+	setPresident(first_emperor);
 	
 	console.log( getName(first_emperor) + " is first emperor");
 	
 	// this is the first election
-	localStorage.setItem("chancellor", "0");
+	setChancellor(0);
 	localStorage.setItem("past_emperor", "0");
 	localStorage.setItem("past_chancellor", "0");
 	localStorage.setItem("real_new_emperor", "0");
@@ -345,10 +358,10 @@ function playLoaded()
 	
 	var turn = localStorage.getItem("turn");
 	var player = localStorage.getObject("player" + turn );
-	var emperor_num = localStorage.getItem("emperor");
+	var emperor_num = getPresident()
 	var emperor = getPlayer(emperor_num);
 	var player_num = localStorage.getItem("player_number");
-	var chancellor_num = localStorage.getItem("chancellor");
+	var chancellor_num = getChancellor();
 	var chancellor = getPlayer(chancellor_num);
 	
 	// -----------------------------------------------------------------
@@ -367,7 +380,6 @@ function playLoaded()
 				
 				if(temp_player.name != player.name)
 				{
-				
 					if(temp_player.role == "Imperialist")
 					{
 						text += "- <b>" + temp_player.name + "</b><br>"
@@ -408,7 +420,11 @@ function playLoaded()
 		
 		// function
 		function setButton(button, i) {
-			button.onclick = function(){ setChancellor(i); };
+			button.onclick = function()
+			{
+				setChancellor(i);
+				window.location = "pass.html";
+			};
 		}
 		
 		// loop
@@ -421,8 +437,9 @@ function playLoaded()
 				i == turn ||
 				i == past_c ||
 				(Number(player_num) > 6 && i == past_e) ||
-				isAlive(i) == false
-			) { continue; }
+				!isAlive(i)
+			)
+				continue;
 			
 			let temp_player = getPlayer(i);
 				
@@ -459,7 +476,11 @@ function playLoaded()
 		
 		let byes = document.getElementById("button");
 		byes.value = "Yes";
-		byes.onclick = function(){ vote("y", turn); };
+		byes.onclick = function()
+		{
+			localStorage.setItem("vote"+turn, "y" );
+			window.location = "pass.html";
+		};
 		
 		let bre = document.createElement("br");
 		let bre2 = document.createElement("br");
@@ -469,7 +490,11 @@ function playLoaded()
 		let bno = document.createElement("input");
 		bno.type = "button";
 		bno.value = "No";
-		bno.onclick = function(){ vote("n", turn) };
+		bno.onclick = function()
+		{
+			localStorage.setItem("vote"+turn, "n" );
+			window.location = "pass.html";
+		};
 		
 		byes.parentNode.appendChild(bno);
 
@@ -537,7 +562,7 @@ function playLoaded()
 			localStorage.setItem("past_emperor", emperor_num);
 			localStorage.setItem("past_chancellor", chancellor_num);
 			
-			if (( getRole(localStorage.getItem("chancellor")) == "Dart Vader" ) && (Number(localStorage.getItem("empire_cards")) >= 3) ) {
+			if (( getRole(getChancellor()) == "Dart Vader" ) && (Number(localStorage.getItem("empire_cards")) >= 3) ) {
 				localStorage.setItem("phase", "empire_win_vader_elected");
 			}
 			else {
@@ -546,7 +571,7 @@ function playLoaded()
 		}
 		else
 		{
-			let new_emperor = nextPlayer(Number(localStorage.getItem("emperor")));
+			let new_emperor = nextPlayer(getPresident());
 			
 			text += "<br>After this failure, the opportunity to create a new government is given to ";
 			text += "<b>" + getName(new_emperor) + "</b>";
@@ -578,7 +603,8 @@ function playLoaded()
 		
 		// text
 		let text = "You now have to choose one of three policies shown below to discard.<br>";
-		text += "The other two will be passed to the chancellor <b>" + chancellor.name + "</b>. He will then choose the one to approve that will go on the board";
+		text += "The other two will be passed to the chancellor <b>" + chancellor.name;
+		text += "</b>. He will then choose the one to approve that will go on the board";
 		text += boardStats();
 		
 		text += "<br><br>";
@@ -646,11 +672,11 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
 		// text
-		let text = "You now have to choose one of the two policies shown below that the Emperor <b>" + emperor.name + "</b> has passed to you.<br>";
+		let text = "You now have to choose one of the two policies shown below that the Emperor <b>";
+		text += emperor.name + "</b> has passed to you.<br>";
 		text += "The one you choose will be the policy approved that will go on the board, while the other one will be discarded";
-		text += boardStats();
+		text += boardStats() + "<br>";
 		
-		text += "<br><br>";
 		document.getElementById("comment").innerHTML = text;
 		
 		let card1 = localStorage.getItem("card1");
@@ -693,7 +719,13 @@ function playLoaded()
 			let vetob = document.createElement("input");
 			vetob.type = "button";
 			vetob.value = "Propose veto to the president";
-			vetob.onclick = function(){ askVeto(); };
+			vetob.onclick = function()
+			{
+				localStorage.setItem("phase", "veto");
+				localStorage.setItem("turn", emperor_num);
+
+				window.location = "pass.html";
+			};
 			b1.parentNode.appendChild(vetob);
 		}
 	}
@@ -705,10 +737,9 @@ function playLoaded()
 		
 		document.getElementById("top_title").innerHTML = "Read this out loud";
 		
-		let text = "PUBLIC ANNOUNCE:<br>the government with<br>";
-		text += "- <b>" + emperor.name + "</b> as Emperor<br>";
-		text += "- <b>" + chancellor.name + "</b> as chancellor<br>";
-		text += "has just approved a new ";
+		let text = "PUBLIC ANNOUNCE:<br>the government with<br>- <b>";
+		text += emperor.name + "</b> as Emperor<br>- <b>" + chancellor.name;
+		text +=  "</b> as chancellor<br>has just approved a new ";
 		if( last_policy == "l")
 		{
 			text += '<font color="blue">liberal</font><br>';
@@ -726,12 +757,12 @@ function playLoaded()
 		let new_emperor;
 		
 		if(real_new_emperor == 0) {
-			new_emperor = nextPlayer(Number(localStorage.getItem("emperor")));
+			new_emperor = nextPlayer(localStorage.getItem("emperor"));
 		}
 		else {
 			new_emperor = nextPlayer(real_new_emperor-1);
 		}
-		localStorage.setItem("emperor", new_emperor);
+		setPresident(new_emperor);
 		localStorage.setItem("turn", new_emperor);
 		localStorage.setItem("phase", "election");
 		
@@ -775,8 +806,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "LIBERALS WINS!!";
 		
 		let text = "PUBLIC ANNOUNCE:<br>Placing the last liberal policy on the board, the liberals won the game!<br>";
-		text += playerRoles();
-		text += boardStats();
+		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
 		
@@ -789,8 +819,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "LIBERALS WINS!!";
 		
 		let text = "PUBLIC ANNOUNCE:<br>By killing Dart Vader, the liberals won the game!<br>";
-		text += playerRoles();
-		text += boardStats();
+		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
 		
@@ -803,8 +832,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "IMPERIALISTS WINS!!";
 		
 		let text = "PUBLIC ANNOUNCE:<br>Placing the last fascist policy on the board, the imperialists won the game!<br>";
-		text += playerRoles();
-		text += boardStats();
+		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
 		
@@ -817,8 +845,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "IMPERIALISTS WINS!!";
 		
 		let text = "PUBLIC ANNOUNCE:<br>Electing Dart Vader as the new chancellor, the imperialists won the game!<br>";
-		text += playerRoles();
-		text += boardStats();
+		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
 		
@@ -849,8 +876,7 @@ function playLoaded()
 			localStorage.setItem("liberal_cards", temp+1);
 			text += '<font color="blue">liberal</font>';
 		}
-		text += " one";
-		text += boardStats();
+		text += " one" + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
 		
@@ -887,7 +913,24 @@ function playLoaded()
 		
 		// function
 		function setButton(button, i) {
-			button.onclick = function(){ kill(i); };
+			button.onclick = function()
+			{
+				let killed_player = getPlayer(i);
+				killed_player.alive = false;
+				localStorage.setObject("player"+i, killed_player);
+		
+				// the new emperor
+				let new_turn = turnStep();
+	
+				setPresident(new_turn);
+	
+				if(killed_player.role != "Dart Vader")
+					localStorage.setItem("phase", "post_kill");
+				else
+					localStorage.setItem("phase", "liberal_win_kill");
+	
+				window.location = "pass.html"; 
+			};
 		}
 		
 		// loop
@@ -984,9 +1027,8 @@ function playLoaded()
 			}
 		}
 		
-		localStorage.setItem("turn", localStorage.getItem("emperor"));
 		let new_turn = turnStep();
-		localStorage.setItem("emperor", new_turn);
+		setPresident(new_turn);
 		localStorage.setItem("phase", "election");
 	}
 	// -----------------------------------------------------------------
@@ -1021,9 +1063,8 @@ function playLoaded()
 		
 		document.getElementById("comment").innerHTML = text;
 		
-		localStorage.setItem("turn", localStorage.getItem("emperor"));
-		let turn = turnStep();
-		localStorage.setItem("emperor", turn);
+		let new_turn = turnStep();
+		setPresident(new_turn);
 		localStorage.setItem("phase", "election");
 	}
 	// -----------------------------------------------------------------
@@ -1043,7 +1084,17 @@ function playLoaded()
 		
 		// function
 		function setButton(button, i) {
-			button.onclick = function(){ powerPick(i) };
+			button.onclick = function()
+			{
+				let real_new_emperor = nextPlayer(turn);
+		
+				localStorage.setItem("turn", i);
+				setPresident(i);
+				localStorage.setItem("real_new_emperor", real_new_emperor);
+				localStorage.setItem("phase", "election");
+	
+				window.location = "pass.html";
+			};
 		}
 		
 		// loop
@@ -1074,13 +1125,33 @@ function playLoaded()
 		// title
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
-		let text = "The chancellor asked for the veto<br>You can accept: no policy will be accepted, but the election tracker will advance of one.<br>Do you accept the veto proposal?";
+		let text = "The chancellor asked for the veto<br>You can accept: no policy will be accepted,"
+		text += "but the election tracker will advance of one.<br>Do you accept the veto proposal?";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
 		let byes = document.getElementById("button");
 		byes.value = "Yes";
-		byes.onclick = function(){ acceptVeto(); };
+		byes.onclick = function()
+		{
+			// discard the two cards, update the election tracker and call a new election
+			pile_discard(localStorage.getItem("card1"));
+			pile_discard(localStorage.getItem("card2"));
+			pile_shuffle();
+			
+			tracker_add();
+			
+			let new_turn = turnStep();
+			setPresident(new_turn);
+			setChancellor(0);
+			
+			if(tracker_at3()) {
+				sessionStorage.setItem("phase", "election");
+			} else {
+				sessionStorage.setItem("phase", "caos");
+			}
+			window.location = "pass.html";
+		};
 		
 		let bre = document.createElement("br");
 		let bre2 = document.createElement("br");
@@ -1090,7 +1161,13 @@ function playLoaded()
 		let bno = document.createElement("input");
 		bno.type = "button";
 		bno.value = "No";
-		bno.onclick = function(){ refuseVeto(); };
+		bno.onclick = function()
+		{
+			// if refused just repropose the cards to the chancellor
+			localStorage.setItem("phase", "legislative_chancellor");
+			localStorage.setItem("turn", getChancellor());
+			window.location = "pass.html";
+		};
 		
 		byes.parentNode.appendChild(bno);
 	}
@@ -1105,10 +1182,8 @@ function playLoaded()
 // This handle the actions at the end of a turn
 function postPlay()
 {
-	let phase = localStorage.getItem("phase");
-	
 	// this may be the only thing that actually make sense here?
-	if(phase == "end")
+	if(localStorage.getItem("phase") == "end")
 	{
 		// start a new game
 		window.location = "index.html";
@@ -1121,18 +1196,6 @@ function postPlay()
 
 // ---------------------------------------------------------------------
 // called from HTML
-function setChancellor( pl )
-{
-	localStorage.setItem("chancellor", pl);
-	postPlay();
-}
-// ---------------------------------------------------------------------
-function vote( v, who )
-{
-	localStorage.setItem("vote"+who, v );
-	postPlay();
-}
-// ---------------------------------------------------------------------
 function pickCard( n )
 {
 	let discarded_card = localStorage.getItem("card"+n);
@@ -1140,12 +1203,11 @@ function pickCard( n )
 	pile_discard(discarded_card);
 		
 	// now put the two cards left as card1 and card2
-	if(n != 3)
-	{
+	if(n != 3) {
 		localStorage.setItem("card"+n, localStorage.getItem("card3"));
 	}
 	
-	postPlay();
+	window.location = "pass.html";
 }
 // ---------------------------------------------------------------------
 function pickCardChancellor( cp )
@@ -1203,72 +1265,5 @@ function pickCardChancellor( cp )
 		}
 	}
 	
-	postPlay();
-}
-// ---------------------------------------------------------------------
-function kill(pl)
-{
-	let killed_player = getPlayer(pl);
-	killed_player.alive = false;
-	localStorage.setObject("player"+pl, killed_player);
-		
-	// the new emperor
-	localStorage.setItem("emperor", nextPlayer(Number(localStorage.getItem("turn"))));
-	
-	turnStep();
-	
-	if(killed_player.role != "Dart Vader")
-		localStorage.setItem("phase", "post_kill");
-	else
-		localStorage.setItem("phase", "liberal_win_kill");
-	
-	postPlay();
-}
-// ---------------------------------------------------------------------
-function powerPick(pl)
-{
-	let real_new_emperor = nextPlayer(Number(localStorage.getItem("emperor")));
-		
-	localStorage.setItem("turn", pl);
-	localStorage.setItem("emperor", pl);
-	localStorage.setItem("real_new_emperor", real_new_emperor);
-	localStorage.setItem("phase", "election");
-	
-	postPlay();
-}
-// ---------------------------------------------------------------------
-function askVeto(pl)
-{		
-	localStorage.setItem("phase", "veto");
-	localStorage.setItem("turn", emperor_num);
-			
-	postPlay();
-}
-// ---------------------------------------------------------------------
-function acceptVeto()
-{
-	// discard the two cards, update the election tracker and call a new election
-	pile_discard(localStorage.getItem("card1"));
-	pile_discard(localStorage.getItem("card2"));
-	pile_shuffle();
-			
-	tracker_add();
-			
-	sessionStorage.setItem("emperor", nextPlayer(Number(localStorage.getItem("turn"))));
-	sessionStorage.setItem("turn", localStorage.getItem("emperor"));
-	if(tracker_at3()) {
-		sessionStorage.setItem("phase", "election");
-	} else {
-		sessionStorage.setItem("phase", "caos");
-	}
-
-	postPlay();
-}
-// ---------------------------------------------------------------------
-function refuseVeto()
-{
-	// if refused just repropose the cards to the chancellor
-	localStorage.setItem("phase", "legislative_chancellor");
-	localStorage.setItem("turn", localStorage.getItem("chancellor"));
-	postPlay();
+	window.location = "pass.html";
 }
