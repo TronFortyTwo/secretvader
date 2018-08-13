@@ -72,7 +72,7 @@ function pile_info()
 	let draw_pile = localStorage.getItem("draw_pile");
 	let discard_pile = localStorage.getItem("discard_pile");
 	
-	return "Draw deck: " + draw_pile.length + " | discarded: " + discard_pile.length;
+	return "Pila delle leggi: " + draw_pile.length + " | scartate: " + discard_pile.length;
 }
 function pile_discard(c)
 {
@@ -156,9 +156,9 @@ String.prototype.shuffle = function () {
 // return the stats about the board
 function boardStats()
 {
-	let str = "<br><br>Total liberal policies approved: " + localStorage.getItem("liberal_cards") + " of 5";
-	str += "<br>Total fascist policies approved: " + localStorage.getItem("fascist_cards") + " of 6";
-	str += "<br>Election Tracker: " + localStorage.getItem("tracker") + " of 3";
+	let str = "<br><br>Leggi liberali approvate: " + localStorage.getItem("liberal_cards") + " di 5";
+	str += "<br>Leggi fasciste approvate: " + localStorage.getItem("fascist_cards") + " di 6";
+	str += "<br>Election Tracker: " + localStorage.getItem("tracker") + " di 3";
 	str += "<br>" + pile_info() + "<br>";
 	
 	return str;
@@ -168,13 +168,13 @@ function boardStats()
 function playerRoles()
 {
 	let player_num = localStorage.getItem("player_number");
-	let text = "<br>Roles:<br>";
+	let text = "<br>Ruoli:<br>";
 	for(let i=1; i<=player_num; i++)
 	{
 		text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")";
 		if(!isAlive(i))
 		{
-			text += " [killed]";
+			text += " [eliminato]";
 		}
 		text += "<br>";
 	}
@@ -242,7 +242,7 @@ function setName( setnum )
 {
 	var player = {
 		name: document.getElementById("p_text").value,
-		role: "liberal",
+		role: "liberale",
 		alive: true
 	};
 	
@@ -298,13 +298,13 @@ function setGame()
 		
 		let p = getPlayer(fas_num);
 		
-		if(p.role !== "liberal") {
+		if(p.role !== "liberale") {
 			continue;
 		}
 		
 		num_fas--;
 		
-		p.role = "fascist";
+		p.role = "fascista";
 		
 		localStorage.setObject("player"+fas_num, p);
 		
@@ -346,8 +346,8 @@ function passLoaded()
 {
 	let name = getName(localStorage.getItem("turn"));
 	
-	document.getElementById("notice").innerHTML = "Pass the phone to " + name;
-	document.getElementById("button").value = "OK, now I am " + name;
+	document.getElementById("notice").innerHTML = "Passa il dispositivo a " + name;
+	document.getElementById("button").value = "Ok, ora sono " + name;
 }
 
 // ---------------------------------------------------------------------
@@ -370,15 +370,15 @@ function playLoaded()
 	{
 		let text = "";
 		
-		if((player.role == "fascist") || ((player.role == "Hitler") && (player_num < 7)))
+		if((player.role == "fascista") || ((player.role == "Hitler") && (player_num < 7)))
 		{
-			text += "The other fascists are:<br>";
+			text += "Gli altri fascisti sono:<br>";
 			
 			for(var i=1; i<=player_num; i++)
 			{
 				if(getName(i) != player.name)
 				{
-					if(getRole(i) == "fascist")
+					if(getRole(i) == "fascista")
 					{
 						text += "- <b>" + getName(i) + "</b><br>"
 					}
@@ -390,9 +390,9 @@ function playLoaded()
 			}
 		}
 		
-		text += "<br>As first president, <b>" + president.name + "</b> has been randomly choosen";
+		text += "<br>Come primo presidente, <b>" + president.name + "</b> è stato scelto casualmente";
 		
-		document.getElementById("top_title").innerHTML = "You are <b>" + player.role + "</b>";
+		document.getElementById("top_title").innerHTML = "Tu sei <b>" + player.role + "</b>";
 		document.getElementById("comment").innerHTML = text;
 		
 		// if everyone already seen his role, go to the election phase
@@ -405,9 +405,9 @@ function playLoaded()
 	// election phase - president turn
 	else if( phase === "election" )
 	{
-		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
-		let text = "As candidate president, you have to choose a player to be the candidate chancellor:";
+		let text = "Come candidato presidente, devi scegliere un giocatore che sia candidato cancelliere:";
 		
 		text += boardStats(text);
 		
@@ -463,11 +463,11 @@ function playLoaded()
 	// do a round asking for the votes
 	else if( phase === "vote_round")
 	{
-		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
-		let text = "You have to vote for the proposed new govern:<br>- <b>";
-		text += president.name + "</b> as new president<br>- <b>";
-		text += chancellor.name + "</b> as new chancellor<br>Please, don't say your vote until everyone has voted<br<br>";
+		let text = "Devi votare per il nuovo governo proposto:<br>- <b>";
+		text += president.name + "</b> come nuovo presidente<br>- <b>";
+		text += chancellor.name + "</b> come nuovo cancelliere<br>Per piacere, non rivelare il tuo voto fintanto tutti non abbiano votato<br<br>";
 		text += boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -507,7 +507,7 @@ function playLoaded()
 	else if(phase === "vote_result")
 	{
 		// write things down
-		document.getElementById("top_title").innerHTML = "Read this out loud";
+		document.getElementById("top_title").innerHTML = "Leggi questo a tutti";
 		
 		// check votation results
 		let yes = 0;
@@ -529,19 +529,19 @@ function playLoaded()
 			approved = true;
 		}
 		
-		let text = "PUBLIC ANNOUNCE:<br>the new candidate government with<br>";
-		text += "- <b>" + president.name + "</b> as president<br>";
-		text += "- <b>" + chancellor.name + "</b> as chancellor<br>";
-		text += "has been ";
+		let text = "ANNUNCIO PUBBLICO:<br>Il nuovo governo proposto con:<br>";
+		text += "- <b>" + president.name + "</b> come presidente<br>";
+		text += "- <b>" + chancellor.name + "</b> come cancelliere<br>";
+		text += "è stato ";
 		if(approved)
 		{
-			text += '<font color="green">approved</font><br>';
+			text += '<font color="green">approvato</font><br>';
 		}
 		else
 		{
-			text += '<font color="red">rejected</font><br>';
+			text += '<font color="red">rifiutato</font><br>';
 		}
-		text += "<br>VOTES:<br>";
+		text += "<br>VOTI:<br>";
 		
 		for(var i=1; i<=player_num; i++)
 		{
@@ -554,7 +554,7 @@ function playLoaded()
 		
 		if(approved)
 		{
-			text += "<br>Now the new government will create a new policy<br>";
+			text += "<br>Ora il nuovo governo varerà una nuova legge<br>";
 			
 			localStorage.setItem("turn", president_num);
 			localStorage.setItem("past_president", president_num);
@@ -571,7 +571,7 @@ function playLoaded()
 		{
 			let new_president = nextPlayer(getPresident());
 			
-			text += "<br>After this failure, the opportunity to create a new government is given to ";
+			text += "<br>Dopo questo fiasco, l'opportunità di create un nuovo governo è data a ";
 			text += "<b>" + getName(new_president) + "</b>";
 			
 			setPresident(new_president);
@@ -597,12 +597,12 @@ function playLoaded()
 	else if(phase == "legislative_president")
 	{
 		// title
-		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// text
-		let text = "You now have to choose one of three policies shown below to discard.<br>";
-		text += "The other two will be passed to the chancellor <b>" + chancellor.name;
-		text += "</b>. He will then choose the one to approve that will go on the board";
+		let text = "Ora devi scegliere una delle tre leggi qui sotto che verrà <b>scartata</b>.<br>";
+		text += "Le altre due saranno passate al cancelliere <b>" + chancellor.name;
+		text += "</b> che sceglierà quale verrà effettivamente varata";
 		text += boardStats();
 		
 		text += "<br><br>";
@@ -616,11 +616,11 @@ function playLoaded()
 		
 		// the three card buttons
 		let b1 = document.getElementById("button");
-		b1.value = "CARD 1: ";
+		b1.value = "LEGGE 1: ";
 		if(cards[0] == "f") {
-			b1.value += "fascist";
+			b1.value += "fascista";
 		} else {
-			b1.value += "liberal";
+			b1.value += "liberale";
 		}
 		b1.onclick = function(){ pickCard(1); };
 	
@@ -631,11 +631,11 @@ function playLoaded()
 		
 		let b2 = document.createElement("input");
 		b2.type = "button";
-		b2.value = "CARD 2: ";
+		b2.value = "LEGGE 2: ";
 		if(cards[1] == "f") {
-			b2.value += "fascist";
+			b2.value += "fascista";
 		} else {
-			b2.value += "liberal";
+			b2.value += "liberale";
 		}
 		b2.onclick = function(){ pickCard(2); };
 		b1.parentNode.appendChild(b2);
@@ -648,11 +648,11 @@ function playLoaded()
 		
 		let b3 = document.createElement("input");
 		b3.type = "button";
-		b3.value = "CARD 3: ";
+		b3.value = "LEGGE 3: ";
 		if(cards[2] == "f") {
-			b3.value += "fascist";
+			b3.value += "fascista";
 		} else {
-			b3.value += "liberal";
+			b3.value += "liberale";
 		}
 		b3.onclick = function(){ pickCard(3); };
 		b1.parentNode.appendChild(b3);
@@ -667,12 +667,12 @@ function playLoaded()
 	else if(phase == "legislative_chancellor")
 	{
 		// title
-		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// text
-		let text = "You now have to choose one of the two policies shown below that the president <b>";
-		text += president.name + "</b> has passed to you.<br>";
-		text += "The one you choose will be the policy approved that will go on the board, while the other one will be discarded";
+		let text = "Ora devi scegliere una delle due leggi qui sotto che il presidente <b>";
+		text += president.name + "</b> ti ha passato.<br>";
+		text += "Quella che scegli verrà <b>approvata</b> e giocata sul tabellone, mentre l'altra saraà scartata";
 		text += boardStats() + "<br>";
 		
 		document.getElementById("comment").innerHTML = text;
@@ -682,11 +682,11 @@ function playLoaded()
 		
 		// card 1
 		let b1 = document.getElementById("button");
-		b1.value = "CARD 1: ";
+		b1.value = "LEGGE 1: ";
 		if(card1 == "f") {
-			b1.value += "fascist";
+			b1.value += "fascista";
 		} else {
-			b1.value += "liberal";
+			b1.value += "liberale";
 		}
 		b1.onclick = function(){ pickCardChancellor(1); };
 		
@@ -697,11 +697,11 @@ function playLoaded()
 		
 		let b2 = document.createElement("input");
 		b2.type = "button";
-		b2.value = "CARD 2: ";
+		b2.value = "LEGGE 2: ";
 		if(card2 == "f") {
-			b2.value += "fascist";
+			b2.value += "fascista";
 		} else {
-			b2.value += "liberal";
+			b2.value += "liberale";
 		}
 		b2.onclick = function(){ pickCardChancellor(2); };
 		b1.parentNode.appendChild(b2);
@@ -716,7 +716,7 @@ function playLoaded()
 		
 			let vetob = document.createElement("input");
 			vetob.type = "button";
-			vetob.value = "Propose veto to the president";
+			vetob.value = "Proponi il veto al presidente";
 			vetob.onclick = function()
 			{
 				localStorage.setItem("phase", "veto");
@@ -733,21 +733,19 @@ function playLoaded()
 	{
 		let last_policy = localStorage.getItem("last_policy");
 		
-		document.getElementById("top_title").innerHTML = "Read this out loud";
+		document.getElementById("top_title").innerHTML = "Leggi questo a tutti";
 		
-		let text = "PUBLIC ANNOUNCE:<br>the government with<br>- <b>";
-		text += president.name + "</b> as president<br>- <b>" + chancellor.name;
-		text +=  "</b> as chancellor<br>has just approved a new ";
+		let text = "ANNUNCIO PUBBLICO:<br>Il governo con:<br>- <b>";
+		text += president.name + "</b> come presidente e<br>- <b>" + chancellor.name;
+		text +=  "</b> come cancelliere<br>Ha appena approvato una nuova legge ";
 		if( last_policy == "l")
 		{
-			text += '<font color="blue">liberal</font><br>';
+			text += '<font color="blue">liberale</font><br>';
 		}
 		else
 		{
-			text += '<font color="red">fascist</font><br>';
+			text += '<font color="red">fascista</font><br>';
 		}
-		
-		text += " policy"
 		text += boardStats();
 		
 		// update president
@@ -764,7 +762,7 @@ function playLoaded()
 		localStorage.setItem("turn", new_president);
 		localStorage.setItem("phase", "election");
 		
-		text += "<br> Now a new government will be created. The candidate president now is <b>";
+		text += "<br> Il prossimo candidato presidente che proverà ha creare un governo sarà <b>";
 		text += getName(new_president) + "</b><br>";
 		
 		document.getElementById("comment").innerHTML = text;
@@ -801,9 +799,9 @@ function playLoaded()
 	// liberals just won by making enought liberal policies
 	else if(phase == "liberal_win_cards")
 	{
-		document.getElementById("top_title").innerHTML = "LIBERALS WINS!!";
+		document.getElementById("top_title").innerHTML = "I LIBERALI VINCONO!!";
 		
-		let text = "PUBLIC ANNOUNCE:<br>Placing the last liberal policy on the board, the liberals won the game!<br>";
+		let text = "ANNUNCIO PUBBLICO:<br>Mettendo l'ultima legge liberale sul tabellone, i liberali vincono la partita!<br>";
 		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -814,9 +812,9 @@ function playLoaded()
 	// liberals just won by killing hitler
 	else if(phase == "liberal_win_kill")
 	{
-		document.getElementById("top_title").innerHTML = "LIBERALS WINS!!";
+		document.getElementById("top_title").innerHTML = "I LIBERALI VINCONO!!";
 		
-		let text = "PUBLIC ANNOUNCE:<br>By killing Hitler, the liberals won the game!<br>";
+		let text = "ANNUNCIO PUBBLICO:<br>Uccidendo Hitler, i liberali vincono la partita!<br>";
 		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -827,9 +825,9 @@ function playLoaded()
 	// imperlists just won by making enought fascist policies
 	else if(phase == "fascist_win_cards")
 	{
-		document.getElementById("top_title").innerHTML = "FASCISTS WINS!!";
+		document.getElementById("top_title").innerHTML = "I FASCISTI VINCONO!!";
 		
-		let text = "PUBLIC ANNOUNCE:<br>Placing the last fascist policy on the board, the fascist won the game!<br>";
+		let text = "ANNUNCIO PUBBLICO:<br>Mettendo l'ultima legge fascista sul tabellone, i fascisti vincono la partita!<br>";
 		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -840,9 +838,9 @@ function playLoaded()
 	// imperlists just won by making enought fascist policies
 	else if(phase == "fascist_win_hitler_elected")
 	{
-		document.getElementById("top_title").innerHTML = "FASCISTS WINS!!";
+		document.getElementById("top_title").innerHTML = "I FASCISTI VINCONO!!";
 		
-		let text = "PUBLIC ANNOUNCE:<br>Electing Hitler as the new chancellor, the fascist won the game!<br>";
+		let text = "ANNUNCIO PUBBLICO:<br>eleggendo Hitler cancelliere, i fascisti vincono la partita!<br>";
 		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -859,22 +857,22 @@ function playLoaded()
 		// write the message
 		document.getElementById("top_title").innerHTML = "Read this out loud";
 		
-		let text = "PUBLIC ANNOUNCE:<br>After 3 failed government proposal, the caos brought the acceptation of the first policy of the deck, whatever it is.<br>";
-		text += "The new policy is a ";
+		let text = "ANNUNCIO PUBBLICO:<br>Dopo tre proposte di governo rifiutate, il caos ha portato all'approvazione della prima legge del mazzo, qualsiasi essa sia.<br>";
+		text += "La nuova legge è ";
 		
 		if(pol == "f")
 		{
 			let temp = Number(localStorage.getItem("fascist_cards"));
 			localStorage.setItem("fascist_cards", temp+1);
-			text += '<font color="red">fascist</font>';
+			text += '<font color="red">fascista</font>';
 		}
 		else
 		{
 			let temp = Number(localStorage.getItem("liberal_cards"));
 			localStorage.setItem("liberal_cards", temp+1);
-			text += '<font color="blue">liberal</font>';
+			text += '<font color="blue">liberale</font>';
 		}
-		text += " one" + boardStats();
+		text += boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
 		
@@ -899,10 +897,10 @@ function playLoaded()
 	else if(phase == "president_power_kill")
 	{
 		// title
-		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// comment
-		let text = "SPECIAL PRESIDENTIAL POWER:<br>You can choose a player to kill. Choose carefully!";
+		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi scegliere un giocatore da uccidere. Scegli bene!";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
@@ -958,10 +956,10 @@ function playLoaded()
 	else if(phase == "post_kill")
 	{
 		// title
-		document.getElementById("top_title").innerHTML = "Read this out loud";
+		document.getElementById("top_title").innerHTML = "Leggi questo a tutti";
 		
 		// comment
-		let text = "PUBLIC ANNOUNCE:<br>The president used his special power, and killed ";
+		let text = "ANNUNCIO PUBBLICO:<br>Il presidente ha usato un suo speciale potere, e ha ucciso ";
 		text += "<b>" + getName(localStorage.getItem("killed_player")) + "</b>.";
 		
 		text += boardStats();
@@ -978,10 +976,10 @@ function playLoaded()
 		removeButton();
 		
 		// title
-		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// comment
-		let text = "SPECIAL PRESIDENTIAL POWER:<br>You can choose a player and see if is liberal or fascist. Choose carefully!";
+		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi scegliere un giocatore e vedere il suo schieramento politico. Scegli bene!";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
@@ -989,10 +987,10 @@ function playLoaded()
 		function setButton(button, i) {
 			button.onclick = function(){
 				
-				if( localStorage.getObject("player"+i).role == "liberal" )
-					alert("The player you investigated is liberal");
+				if( localStorage.getObject("player"+i).role == "liberale" )
+					alert("Il giocatore che hai investigato è liberale");
 				else
-					alert("The player you investigated is fascist");
+					alert("Il giocatore che hai investigato è fascista");
 				
 				window.location = "pass.html";
 			};
@@ -1028,10 +1026,10 @@ function playLoaded()
 	else if(phase == "president_power_see")
 	{
 		// title
-		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// comment
-		let text = "SPECIAL PRESIDENTIAL POWER:<br>You can see the top 3 cards of the policy deck.";
+		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi vedere le tre carte in cima al mazzo delle leggi.";
 		text += boardStats();
 		
 		// show them
@@ -1040,15 +1038,15 @@ function playLoaded()
 		text += "<br>";
 		for(var i=0; i!=3; i++)
 		{
-			text += "CARD " + (i+1) + ": ";
+			text += "LEGGE " + (i+1) + ": ";
 			
 			if(cards[i] == "f")
 			{
-				text += '<font color="red">fascist</font>';
+				text += '<font color="red">fascista</font>';
 			}
 			else
 			{
-				text += '<font color="blue">liberal</font>';
+				text += '<font color="blue">liberale</font>';
 			}
 			text += "<br>";
 		}
@@ -1067,10 +1065,10 @@ function playLoaded()
 		removeButton();
 		
 		// title
-		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// comment
-		let text = "SPECIAL PRESIDENTIAL POWER:<br>You can choose a player to be the next president. After his ruling, the next president will follow the original order. Choose carefully!";
+		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi scegliere un giocatore che sia il prossimo presidente. Il presidente ancora dopo seguirà la turnazione originale. Scegli bene!";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
@@ -1115,10 +1113,10 @@ function playLoaded()
 	else if(phase == "veto")
 	{
 		// title
-		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
+		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
-		let text = "The chancellor asked for the veto<br>You can accept: no policy will be accepted,"
-		text += "but the election tracker will advance of one.<br>Do you accept the veto proposal?";
+		let text = "Il cancelliere ti propone il veto<br>Puoi accettare: nessuna legge sarà accettata e una nuova legislatura indetta, "
+		text += "Ma l'election tracker avanzera di un posto.<br>Accetti la proposta di veto?";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
