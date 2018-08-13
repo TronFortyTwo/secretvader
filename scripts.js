@@ -916,7 +916,8 @@ function playLoaded()
 				let killed_player = getPlayer(i);
 				killed_player.alive = false;
 				localStorage.setObject("player"+i, killed_player);
-		
+				localstorage.setObject("killed_player", i);
+
 				// the new president
 				let new_turn = turnStep();
 	
@@ -927,7 +928,7 @@ function playLoaded()
 				else
 					localStorage.setItem("phase", "liberal_win_kill");
 	
-				window.location = "pass.html"; 
+				window.location = "pass.html";
 			};
 		}
 		
