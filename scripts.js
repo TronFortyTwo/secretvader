@@ -916,7 +916,7 @@ function playLoaded()
 				let killed_player = getPlayer(i);
 				killed_player.alive = false;
 				localStorage.setObject("player"+i, killed_player);
-				localstorage.setObject("killed_player", i);
+				localStorage.setObject("killed_player", i);
 
 				// the new president
 				let new_turn = turnStep();
@@ -1136,10 +1136,9 @@ function playLoaded()
 			let new_turn = turnStep();
 			setPresident(new_turn);
 			setChancellor(0);
+			sessionStorage.setItem("phase", "election");
 			
 			if(tracker_at3()) {
-				sessionStorage.setItem("phase", "election");
-			} else {
 				sessionStorage.setItem("phase", "caos");
 			}
 			window.location = "pass.html";
