@@ -108,6 +108,17 @@ function getPlayer(pl)
 }
 
 // ---------------------------------------------------------------------
+// tracker abstraction
+function tracker_reset(){
+	localStorage.setItem("tracker", "0");
+}
+function tracker_at3(){
+	return (localStorage.getItem("tracker") == 3);
+}
+function tracker_add(){
+	localStorage.setItem("tracker", Number(localStorage.getItem("tracker"))+1);
+}
+// ---------------------------------------------------------------------
 // Get a random number in a range
 function random(min, max)
 {
@@ -289,7 +300,7 @@ function setGame()
 	pile_create();
 	
 	// election tracker
-	localStorage.setItem("tracker", "0");
+	tracker_reset();
 	
 	// how many cards are in the table
 	localStorage.setItem("empire_cards", "0");
@@ -506,7 +517,7 @@ function playLoaded()
 			text += "<b>" + getName(new_emperor) + "</b>";
 			
 			localStorage.setItem("vote_result", "n");
-			localStorage.setItem("tracker", Number(localStorage.getItem("tracker"))+1);
+			tracker_add();
 			localStorage.setItem("emperor", new_emperor);
 			localStorage.setItem("turn", new_emperor);
 			localStorage.setItem("chancellor", "0");
@@ -777,7 +788,7 @@ function playLoaded()
 		document.getElementById("comment").innerHTML = text;
 		
 		// update tracker
-		localStorage.setItem("tracker", "0");
+		tracker_reset();
 	}
 	// -----------------------------------------------------------------
 	// the emperor kills a player
@@ -1051,11 +1062,9 @@ function postPlay()
 				localStorage.setItem("phase", "legislative_emperor");
 			}
 		}
-		else {
-			// check the tracker
-			let tracker = Number(localStorage.getItem("tracker"));
-			
-			if(tracker == 3)
+		else
+		{
+			if(tracker_at3())
 			{
 				localStorage.setItem("phase", "caos");
 			}
@@ -1115,7 +1124,7 @@ function postPlay()
 			let card_picked = localStorage.getItem("card"+picked);
 		
 			// reset election tracker
-			localStorage.setItem("tracker", 0);
+			tracker_reset();
 		
 			// advance the turn
 			turnStep();
@@ -1173,13 +1182,11 @@ function postPlay()
 			pile_discard(localStorage.getItem("card2"));
 			pile_shuffle();
 			
-			let tracker = Number(sessionStorage.getItem("tracker"));
-			tracker++;
-			sessionStorage.setItem("tracker", tracker);
+			tracker_add();
 			
 			sessionStorage.setItem("emperor", nextPlayer(Number(localStorage.getItem("turn"))));
 			sessionStorage.setItem("turn", localStorage.getItem("emperor"));
-			if(tracker < 3) {
+			if(tracker_at3()) {
 				sessionStorage.setItem("phase", "election");
 			} else {
 				sessionStorage.setItem("phase", "caos");
