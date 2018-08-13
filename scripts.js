@@ -109,10 +109,10 @@ function getPlayer(pl)
 // ---------------------------------------------------------------------
 // abstract stuff
 function getPresident(){
-	return localStorage.getItem("emperor");
+	return localStorage.getItem("president");
 }
 function setPresident(np){
-	localStorage.setItem("emperor", np);
+	localStorage.setItem("president", np);
 }
 function getChancellor(){
 	return localStorage.getItem("chancellor");
@@ -157,7 +157,7 @@ String.prototype.shuffle = function () {
 function boardStats()
 {
 	let str = "<br><br>Total liberal policies approved: " + localStorage.getItem("liberal_cards") + " of 5";
-	str += "<br>Total fascist policies approved: " + localStorage.getItem("empire_cards") + " of 6";
+	str += "<br>Total fascist policies approved: " + localStorage.getItem("fascist_cards") + " of 6";
 	str += "<br>Election Tracker: " + localStorage.getItem("tracker") + " of 3";
 	str += "<br>" + pile_info() + "<br>";
 	
@@ -202,7 +202,7 @@ function nextPlayer( start )
 		if(next > player_num)
 			next = 1;
 	}
-	while( isAlive(next) == false )
+	while( !isAlive(next) )
 	
 	return next;
 }
@@ -274,57 +274,57 @@ function setGame()
 	// assign what player is V.
 	var vnum = random(1, player_num);
 	
-	var vader = getPlayer(vnum);
+	var hitler = getPlayer(vnum);
 	
-	vader.role = "Dart Vader";
+	hitler.role = "Hitler";
 	
-	localStorage.setObject("player"+vnum, vader);
+	localStorage.setObject("player"+vnum, hitler);
 	
-	console.log(vader.name + " is Dart Vader")
+	console.log(hitler.name + " is Hitler")
 	
-	// find the others affiliated empire
+	// find the others
 	if((player_num == 5) || (player_num == 6)) {
-		var num_empire = 1;
+		var num_fas = 1;
 	}
 	else if((player_num == 7) || (player_num == 8)) {
-		var num_empire = 2;
+		var num_fas = 2;
 	}
 	else if((player_num == 9) || (player_num == 10)) {
-		var num_empire = 3;
+		var num_fas = 3;
 	}
 	
-	while(num_empire > 0) {
-		let empire_num = random(1, player_num);
+	while(num_fas > 0) {
+		let fas_num = random(1, player_num);
 		
-		let p = getPlayer(empire_num);
+		let p = getPlayer(fas_num);
 		
 		if(p.role !== "liberal") {
 			continue;
 		}
 		
-		num_empire--;
+		num_fas--;
 		
-		p.role = "Imperialist";
+		p.role = "fascist";
 		
-		localStorage.setObject("player"+empire_num, p);
+		localStorage.setObject("player"+fas_num, p);
 		
-		console.log(p.name + " is Imperialist");
+		console.log(p.name + " is fascist");
 	}
 	
-	// now choose who now is gonna be the first Emperor
-	var first_emperor = random(1, player_num);
-	setPresident(first_emperor);
+	// now choose who now is gonna be the first president
+	var first_president = random(1, player_num);
+	setPresident(first_president);
 	
-	console.log( getName(first_emperor) + " is first emperor");
+	console.log( getName(first_president) + " is first president");
 	
 	// this is the first election
 	setChancellor(0);
-	localStorage.setItem("past_emperor", "0");
+	localStorage.setItem("past_president", "0");
 	localStorage.setItem("past_chancellor", "0");
-	localStorage.setItem("real_new_emperor", "0");
+	localStorage.setItem("real_new_president", "0");
 	
-	// The first emperor is also the first to play
-	localStorage.setItem("turn", first_emperor);
+	// The first president is also the first to play
+	localStorage.setItem("turn", first_president);
 	
 	// create the pile of policies
 	pile_create();
@@ -333,7 +333,7 @@ function setGame()
 	tracker_reset();
 	
 	// how many cards are in the table
-	localStorage.setItem("empire_cards", "0");
+	localStorage.setItem("fascist_cards", "0");
 	localStorage.setItem("liberal_cards", "0");
 	
 	// at the start of the game, just do a turn showing each one role
@@ -358,8 +358,8 @@ function playLoaded()
 	
 	var turn = localStorage.getItem("turn");
 	var player = localStorage.getObject("player" + turn );
-	var emperor_num = getPresident()
-	var emperor = getPlayer(emperor_num);
+	var president_num = getPresident()
+	var president = getPlayer(president_num);
 	var player_num = localStorage.getItem("player_number");
 	var chancellor_num = getChancellor();
 	var chancellor = getPlayer(chancellor_num);
@@ -370,46 +370,44 @@ function playLoaded()
 	{
 		let text = "";
 		
-		if((player.role == "Imperialist") || ((player.role == "Dart Vader") && (player_num < 7)))
+		if((player.role == "fascist") || ((player.role == "Hitler") && (player_num < 7)))
 		{
-			text += "The other Imperialists are:<br>";
+			text += "The other fascists are:<br>";
 			
 			for(var i=1; i<=player_num; i++)
 			{
-				let temp_player = getPlayer(i);
-				
-				if(temp_player.name != player.name)
+				if(getName(i) != player.name)
 				{
-					if(temp_player.role == "Imperialist")
+					if(getRole(i) == "fascist")
 					{
-						text += "- <b>" + temp_player.name + "</b><br>"
+						text += "- <b>" + getName(i) + "</b><br>"
 					}
-					else if(temp_player.role == "Dart Vader")
+					else if(getRole(i) == "Hitler")
 					{
-						text += "- <b>" + temp_player.name + "</b> (Dart Vader)<br>"
+						text += "- <b>" + getName(i) + "</b> (Hitler)<br>"
 					}
 				}
 			}
 		}
 		
-		text += "<br>As first Emperor, <b>" + emperor.name + "</b> has been randomly choosen";
+		text += "<br>As first president, <b>" + president.name + "</b> has been randomly choosen";
 		
 		document.getElementById("top_title").innerHTML = "You are <b>" + player.role + "</b>";
 		document.getElementById("comment").innerHTML = text;
 		
 		// if everyone already seen his role, go to the election phase
-		if( turnStep() == emperor_num )
+		if( turnStep() == president_num )
 		{
 			localStorage.setItem("phase", "election");
 		}
 	}
 	// -----------------------------------------------------------------
-	// election phase - emperor turn
+	// election phase - president turn
 	else if( phase === "election" )
 	{
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
-		let text = "As candidate Emperor, you have to choose a player to be the candidate chancellor:";
+		let text = "As candidate president, you have to choose a player to be the candidate chancellor:";
 		
 		text += boardStats(text);
 		
@@ -428,7 +426,7 @@ function playLoaded()
 		}
 		
 		// loop
-		let past_e = localStorage.getItem("past_emperor");
+		let past_e = localStorage.getItem("past_president");
 		let past_c = localStorage.getItem("past_chancellor");
 		
 		for(var i=1; i<=player_num; i++)
@@ -468,8 +466,8 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
 		let text = "You have to vote for the proposed new govern:<br>- <b>";
-		text += emperor.name + "</b> as new Emperor<br>- <b>";
-		text += chancellor.name + "</b> as new Chancellor<br>Please, don't say your vote until everyone has voted<br<br>";
+		text += president.name + "</b> as new president<br>- <b>";
+		text += chancellor.name + "</b> as new chancellor<br>Please, don't say your vote until everyone has voted<br<br>";
 		text += boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -499,7 +497,7 @@ function playLoaded()
 		byes.parentNode.appendChild(bno);
 
 		// if everyone already seen his role, go to the election phase
-		if( turnStep() == emperor_num )
+		if( turnStep() == president_num )
 		{
 			localStorage.setItem("phase", "vote_result");
 		}
@@ -532,7 +530,7 @@ function playLoaded()
 		}
 		
 		let text = "PUBLIC ANNOUNCE:<br>the new candidate government with<br>";
-		text += "- <b>" + emperor.name + "</b> as Emperor<br>";
+		text += "- <b>" + president.name + "</b> as president<br>";
 		text += "- <b>" + chancellor.name + "</b> as chancellor<br>";
 		text += "has been ";
 		if(approved)
@@ -558,27 +556,27 @@ function playLoaded()
 		{
 			text += "<br>Now the new government will create a new policy<br>";
 			
-			localStorage.setItem("turn", emperor_num);
-			localStorage.setItem("past_emperor", emperor_num);
+			localStorage.setItem("turn", president_num);
+			localStorage.setItem("past_president", president_num);
 			localStorage.setItem("past_chancellor", chancellor_num);
 			
-			if (( getRole(getChancellor()) == "Dart Vader" ) && (Number(localStorage.getItem("empire_cards")) >= 3) ) {
-				localStorage.setItem("phase", "empire_win_vader_elected");
+			if (( getRole(getChancellor()) == "Hitler" ) && (Number(localStorage.getItem("fascist_cards")) >= 3) ) {
+				localStorage.setItem("phase", "fascist_win_hitler_elected");
 			}
 			else {
-				localStorage.setItem("phase", "legislative_emperor");
+				localStorage.setItem("phase", "legislative_president");
 			}
 		}
 		else
 		{
-			let new_emperor = nextPlayer(getPresident());
+			let new_president = nextPlayer(getPresident());
 			
 			text += "<br>After this failure, the opportunity to create a new government is given to ";
-			text += "<b>" + getName(new_emperor) + "</b>";
+			text += "<b>" + getName(new_president) + "</b>";
 			
-			localStorage.setItem("emperor", new_emperor);
-			localStorage.setItem("turn", new_emperor);
-			localStorage.setItem("chancellor", "0");
+			setPresident(new_president);
+			setChancellor(0);
+			localStorage.setItem("turn", new_president);
 			tracker_add();
 			if(tracker_at3())
 			{
@@ -595,8 +593,8 @@ function playLoaded()
 		document.getElementById("comment").innerHTML = text;
 	}
 	// -----------------------------------------------------------------
-	// the emperor takes three cards and choose one to discard
-	else if(phase == "legislative_emperor")
+	// the president takes three cards and choose one to discard
+	else if(phase == "legislative_president")
 	{
 		// title
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
@@ -672,8 +670,8 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
 		// text
-		let text = "You now have to choose one of the two policies shown below that the Emperor <b>";
-		text += emperor.name + "</b> has passed to you.<br>";
+		let text = "You now have to choose one of the two policies shown below that the president <b>";
+		text += president.name + "</b> has passed to you.<br>";
 		text += "The one you choose will be the policy approved that will go on the board, while the other one will be discarded";
 		text += boardStats() + "<br>";
 		
@@ -709,7 +707,7 @@ function playLoaded()
 		b1.parentNode.appendChild(b2);
 		
 		// veto power
-		if( localStorage.getItem("empire_cards") == 5 )
+		if( localStorage.getItem("fascist_cards") == 5 )
 		{
 			let bre3 = document.createElement("br");
 			let bre4 = document.createElement("br");
@@ -722,7 +720,7 @@ function playLoaded()
 			vetob.onclick = function()
 			{
 				localStorage.setItem("phase", "veto");
-				localStorage.setItem("turn", emperor_num);
+				localStorage.setItem("turn", president_num);
 
 				window.location = "pass.html";
 			};
@@ -738,7 +736,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "Read this out loud";
 		
 		let text = "PUBLIC ANNOUNCE:<br>the government with<br>- <b>";
-		text += emperor.name + "</b> as Emperor<br>- <b>" + chancellor.name;
+		text += president.name + "</b> as president<br>- <b>" + chancellor.name;
 		text +=  "</b> as chancellor<br>has just approved a new ";
 		if( last_policy == "l")
 		{
@@ -752,50 +750,50 @@ function playLoaded()
 		text += " policy"
 		text += boardStats();
 		
-		// update emperor
-		let real_new_emperor = Number(localStorage.getItem("real_new_emperor"));
-		let new_emperor;
+		// update president
+		let real_new_president = Number(localStorage.getItem("real_new_president"));
+		let new_president;
 		
-		if(real_new_emperor == 0) {
-			new_emperor = nextPlayer(localStorage.getItem("emperor"));
+		if(real_new_president == 0) {
+			new_president = nextPlayer(getPresident());
 		}
 		else {
-			new_emperor = nextPlayer(real_new_emperor-1);
+			new_president = nextPlayer(real_new_president-1);
 		}
-		setPresident(new_emperor);
-		localStorage.setItem("turn", new_emperor);
+		setPresident(new_president);
+		localStorage.setItem("turn", new_president);
 		localStorage.setItem("phase", "election");
 		
-		text += "<br> Now a new government will be created. The candidate Emperor now is <b>";
-		text += getName(new_emperor) + "</b><br>";
+		text += "<br> Now a new government will be created. The candidate president now is <b>";
+		text += getName(new_president) + "</b><br>";
 		
 		document.getElementById("comment").innerHTML = text;
 		
-		// check if some special emperor power has been activated
+		// check if some special president power has been activated
 		if( localStorage.getItem("last_policy") == "f")
 		{
-			let fas_cards = Number(localStorage.getItem("empire_cards"));
+			let fas_cards = Number(localStorage.getItem("fascist_cards"));
 			
 			if( fas_cards >= 4 )
 			{
-				localStorage.setItem("turn", emperor_num);
-				localStorage.setItem("phase", "emperor_power_kill");
+				localStorage.setItem("turn", president_num);
+				localStorage.setItem("phase", "president_power_kill");
 			}
 			else if( (fas_cards == 3) && (player_num <= 6) )
 			{
-				localStorage.setItem("turn", emperor_num);
-				localStorage.setItem("phase", "emperor_power_see");
+				localStorage.setItem("turn", president_num);
+				localStorage.setItem("phase", "president_power_see");
 			}
 			else if( fas_cards == 3 )
 			{
-				localStorage.setItem("turn", emperor_num);
-				localStorage.setItem("phase", "emperor_power_choose");
+				localStorage.setItem("turn", president_num);
+				localStorage.setItem("phase", "president_power_choose");
 			}
 			else if(((fas_cards == 2) && (player_num >= 7)) ||
 					((fas_cards == 1) && (player_num >= 9)))
 			{
-				localStorage.setItem("turn", emperor_num);
-				localStorage.setItem("phase", "emperor_power_detective");
+				localStorage.setItem("turn", president_num);
+				localStorage.setItem("phase", "president_power_detective");
 			}
 		}
 	}
@@ -818,7 +816,7 @@ function playLoaded()
 	{
 		document.getElementById("top_title").innerHTML = "LIBERALS WINS!!";
 		
-		let text = "PUBLIC ANNOUNCE:<br>By killing Dart Vader, the liberals won the game!<br>";
+		let text = "PUBLIC ANNOUNCE:<br>By killing Hitler, the liberals won the game!<br>";
 		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -827,11 +825,11 @@ function playLoaded()
 	}
 	// -----------------------------------------------------------------
 	// imperlists just won by making enought fascist policies
-	else if(phase == "empire_win_cards")
+	else if(phase == "fascist_win_cards")
 	{
-		document.getElementById("top_title").innerHTML = "IMPERIALISTS WINS!!";
+		document.getElementById("top_title").innerHTML = "FASCISTS WINS!!";
 		
-		let text = "PUBLIC ANNOUNCE:<br>Placing the last fascist policy on the board, the imperialists won the game!<br>";
+		let text = "PUBLIC ANNOUNCE:<br>Placing the last fascist policy on the board, the fascist won the game!<br>";
 		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -840,11 +838,11 @@ function playLoaded()
 	}
 	// -----------------------------------------------------------------
 	// imperlists just won by making enought fascist policies
-	else if(phase == "empire_win_vader_elected")
+	else if(phase == "fascist_win_hitler_elected")
 	{
-		document.getElementById("top_title").innerHTML = "IMPERIALISTS WINS!!";
+		document.getElementById("top_title").innerHTML = "FASCISTS WINS!!";
 		
-		let text = "PUBLIC ANNOUNCE:<br>Electing Dart Vader as the new chancellor, the imperialists won the game!<br>";
+		let text = "PUBLIC ANNOUNCE:<br>Electing Hitler as the new chancellor, the fascist won the game!<br>";
 		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -866,8 +864,8 @@ function playLoaded()
 		
 		if(pol == "f")
 		{
-			let temp = Number(localStorage.getItem("empire_cards"));
-			localStorage.setItem("empire_cards", temp+1);
+			let temp = Number(localStorage.getItem("fascist_cards"));
+			localStorage.setItem("fascist_cards", temp+1);
 			text += '<font color="red">fascist</font>';
 		}
 		else
@@ -887,9 +885,9 @@ function playLoaded()
 		{
 			localStorage.setItem("phase", "liberal_win_cards");
 		}
-		else if(localStorage.getItem("empire_cards") == 6)
+		else if(localStorage.getItem("fascist_cards") == 6)
 		{
-			localStorage.setItem("phase", "empire_win_cards");
+			localStorage.setItem("phase", "fascist_win_cards");
 		}
 		else
 		{
@@ -897,8 +895,8 @@ function playLoaded()
 		}
 	}
 	// -----------------------------------------------------------------
-	// the emperor kills a player
-	else if(phase == "emperor_power_kill")
+	// the president kills a player
+	else if(phase == "president_power_kill")
 	{
 		// title
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
@@ -919,12 +917,12 @@ function playLoaded()
 				killed_player.alive = false;
 				localStorage.setObject("player"+i, killed_player);
 		
-				// the new emperor
+				// the new president
 				let new_turn = turnStep();
 	
 				setPresident(new_turn);
 	
-				if(killed_player.role != "Dart Vader")
+				if(killed_player.role != "Hitler")
 					localStorage.setItem("phase", "post_kill");
 				else
 					localStorage.setItem("phase", "liberal_win_kill");
@@ -963,24 +961,18 @@ function playLoaded()
 		
 		// comment
 		let text = "PUBLIC ANNOUNCE:<br>The president used his special power, and killed ";
-		text += "<b>" + localStorage.getObject("player" + localStorage.getItem("killed_player")).name + "</b>.";
+		text += "<b>" + getName(localStorage.getItem("killed_player")) + "</b>.";
 		
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
-		localStorage.setItem("turn", localStorage.getItem("emperor"));
+		localStorage.setItem("turn", localStorage.getItem("president"));
 		localStorage.setItem("phase", "election");
 	}
 	// -----------------------------------------------------------------
-	// the emperor sees a player orientation
-	else if(phase == "emperor_power_detective")
+	// the president sees a player orientation
+	else if(phase == "president_power_detective")
 	{
-		if( localStorage.getItem("exit_power_detective") == "y" )
-		{
-			localStorage.setItem("exit_power_detective", "n");
-			postPlay();
-		}
-		
 		// remove standard button
 		removeButton();
 		
@@ -1000,9 +992,8 @@ function playLoaded()
 					alert("The player you investigated is liberal");
 				else
 					alert("The player you investigated is fascist");
-				localStorage.setItem("exit_power_detective", "y");
 				
-				window.location = "play.html";
+				window.location = "pass.html";
 			};
 		}
 		
@@ -1032,8 +1023,8 @@ function playLoaded()
 		localStorage.setItem("phase", "election");
 	}
 	// -----------------------------------------------------------------
-	// the emperor sees the 3 top card of the pile
-	else if(phase == "emperor_power_see")
+	// the president sees the 3 top card of the pile
+	else if(phase == "president_power_see")
 	{
 		// title
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
@@ -1068,8 +1059,8 @@ function playLoaded()
 		localStorage.setItem("phase", "election");
 	}
 	// -----------------------------------------------------------------
-	// the emperor chooses the next candidate emperor
-	else if(phase == "emperor_power_choose")
+	// the president chooses the next candidate president
+	else if(phase == "president_power_choose")
 	{
 		// remove standard button
 		removeButton();
@@ -1078,7 +1069,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "<b>" + player.name + "</b> turn";
 		
 		// comment
-		let text = "SPECIAL PRESIDENTIAL POWER:<br>You can choose a player to be the next Emperor. After his ruling, the next president will follow the original order. Choose carefully!";
+		let text = "SPECIAL PRESIDENTIAL POWER:<br>You can choose a player to be the next president. After his ruling, the next president will follow the original order. Choose carefully!";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
@@ -1086,11 +1077,11 @@ function playLoaded()
 		function setButton(button, i) {
 			button.onclick = function()
 			{
-				let real_new_emperor = nextPlayer(turn);
+				let real_new_president = nextPlayer(turn);
 		
 				localStorage.setItem("turn", i);
 				setPresident(i);
-				localStorage.setItem("real_new_emperor", real_new_emperor);
+				localStorage.setItem("real_new_president", real_new_president);
 				localStorage.setItem("phase", "election");
 	
 				window.location = "pass.html";
@@ -1119,7 +1110,7 @@ function playLoaded()
 		}
 	}
 	// -----------------------------------------------------------------
-	// the emperor choose to accept the veto of the chancellor or not
+	// the president choose to accept the veto of the chancellor or not
 	else if(phase == "veto")
 	{
 		// title
@@ -1249,13 +1240,13 @@ function pickCardChancellor( cp )
 	}
 	else
 	{
-		let fas = Number(localStorage.getItem("empire_cards"));
+		let fas = Number(localStorage.getItem("fascist_cards"));
 		fas++;
-		localStorage.setItem("empire_cards", fas);
+		localStorage.setItem("fascist_cards", fas);
 	
 		if( fas == 6 )
 		{
-			localStorage.setItem("phase", "empire_win_cards");
+			localStorage.setItem("phase", "fascist_win_cards");
 		}
 		else
 		{
