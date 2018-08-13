@@ -151,6 +151,23 @@ function boardStats()
 	return str;
 }
 // ---------------------------------------------------------------------
+// Returns the roles of each player - for ending
+function playerRoles()
+{
+	let player_num = localStorage.getItem("player_number");
+	let text = "<br>Roles:<br>";
+	for(let i=1; i<=player_num; i++)
+	{
+		text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")";
+		if(!isAlive(i))
+		{
+			text += " [killed]";
+		}
+		text += "<br>";
+	}
+	return text;
+}
+// ---------------------------------------------------------------------
 // subroutine that removes the standard 'Ok, i got it' button
 function removeButton()
 {
@@ -679,13 +696,6 @@ function playLoaded()
 			vetob.onclick = function(){ askVeto(); };
 			b1.parentNode.appendChild(vetob);
 		}
-		
-		else
-		{
-			
-		}
-		
-		
 	}
 	// -----------------------------------------------------------------
 	// show the result of the last legislative session
@@ -765,14 +775,12 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "LIBERALS WINS!!";
 		
 		let text = "PUBLIC ANNOUNCE:<br>Placing the last liberal policy on the board, the liberals won the game!<br>";
-		text += "<br>Roles:<br>";
-		for(let i=1; i<=player_num; i++)
-		{
-			text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")<br>";
-		}
+		text += playerRoles();
 		text += boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
+		
+		localStorage.setItem("phase", "end");
 	}
 	// -----------------------------------------------------------------
 	// liberals just won by killing hitler
@@ -781,14 +789,12 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "LIBERALS WINS!!";
 		
 		let text = "PUBLIC ANNOUNCE:<br>By killing Dart Vader, the liberals won the game!<br>";
-		text += "<br>Roles:<br>";
-		for(let i=1; i<=player_num; i++)
-		{
-			text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")<br>";
-		}
+		text += playerRoles();
 		text += boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
+		
+		localStorage.setItem("phase", "end");
 	}
 	// -----------------------------------------------------------------
 	// imperlists just won by making enought fascist policies
@@ -797,14 +803,12 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "IMPERIALISTS WINS!!";
 		
 		let text = "PUBLIC ANNOUNCE:<br>Placing the last fascist policy on the board, the imperialists won the game!<br>";
-		text += "<br>Roles:<br>"
-		for(let i=1; i<=player_num; i++)
-		{
-			text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")<br>";
-		}
+		text += playerRoles();
 		text += boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
+		
+		localStorage.setItem("phase", "end");
 	}
 	// -----------------------------------------------------------------
 	// imperlists just won by making enought fascist policies
@@ -813,14 +817,12 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "IMPERIALISTS WINS!!";
 		
 		let text = "PUBLIC ANNOUNCE:<br>Electing Dart Vader as the new chancellor, the imperialists won the game!<br>";
-		text += "<br>Roles:<br>"
-		for(let i=1; i<=player_num; i++)
-		{
-			text += "- <b>" + getName(i) + "</b> (" + getRole(i) + ")<br>";
-		}
+		text += playerRoles();
 		text += boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
+		
+		localStorage.setItem("phase", "end");
 	}
 	// -----------------------------------------------------------------
 	// Country fell in caos, a policy is randomly turned
@@ -891,13 +893,11 @@ function playLoaded()
 		// loop
 		for(var i=1; i<=player_num; i++)
 		{
-			let temp_player = localStorage.getObject("player"+i);
-			
-			if((i != turn) && (localStorage.getObject("player"+i).alive == true))
+			if((i != turn) && isAlive(i))
 			{
 				let button = document.createElement("input");
 				button.type = "button";
-				button.value = temp_player.name;
+				button.value = getName(i);
 				
 				setButton(button, i);
 				
@@ -1108,13 +1108,7 @@ function postPlay()
 	let phase = localStorage.getItem("phase");
 	
 	// this may be the only thing that actually make sense here?
-	if
-	(
-		phase == "liberal_win_cards" ||
-		phase == "empire_win_cards" ||
-		phase == "empire_win_vader_elected" ||
-		phase == "liberal_win_kill"
-	)
+	if(phase == "end")
 	{
 		// start a new game
 		window.location = "index.html";
@@ -1221,16 +1215,12 @@ function kill(pl)
 	// the new emperor
 	localStorage.setItem("emperor", nextPlayer(Number(localStorage.getItem("turn"))));
 	
+	turnStep();
+	
 	if(killed_player.role != "Dart Vader")
-	{
-		turnStep();
 		localStorage.setItem("phase", "post_kill");
-	}
 	else
-	{
-		turnStep();
 		localStorage.setItem("phase", "liberal_win_kill");
-	}	
 	
 	postPlay();
 }
