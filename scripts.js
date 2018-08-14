@@ -81,6 +81,16 @@ function pile_discard(c)
 	localStorage.setItem("discard_pile", d);
 }
 // ---------------------------------------------------------------------
+// 
+function setPhase( ph )
+{
+	localStorage.setItem("phase", ph);
+}
+function getPhase()
+{
+	return localStorage.getItem("phase");
+}
+// ---------------------------------------------------------------------
 // Extend localStorage to store objects
 Storage.prototype.setObject = function(key, value) {
     this.setItem(key, JSON.stringify(value));
@@ -337,7 +347,7 @@ function setGame()
 	localStorage.setItem("liberal_cards", "0");
 	
 	// at the start of the game, just do a turn showing each one role
-	localStorage.setItem("phase", "first_round");
+	setPhase("first_round");
 }
 
 // ---------------------------------------------------------------------
@@ -354,7 +364,7 @@ function passLoaded()
 // This organize the play page just after has loaded
 function playLoaded()
 {
-	var phase = localStorage.getItem("phase");
+	var phase = getPhase();
 	
 	var turn = localStorage.getItem("turn");
 	var player = localStorage.getObject("player" + turn );
@@ -398,7 +408,7 @@ function playLoaded()
 		// if everyone already seen his role, go to the election phase
 		if( turnStep() == president_num )
 		{
-			localStorage.setItem("phase", "election");
+			setPhase("election");
 		}
 	}
 	// -----------------------------------------------------------------
@@ -457,7 +467,7 @@ function playLoaded()
 		}
 		
 		// after, we must do a round of votes
-		localStorage.setItem("phase", "vote_round");
+		setPhase("vote_round");
 	}
 	// -----------------------------------------------------------------
 	// do a round asking for the votes
@@ -473,7 +483,7 @@ function playLoaded()
 		document.getElementById("comment").innerHTML = text;
 		
 		let byes = document.getElementById("button");
-		byes.value = "Yes";
+		byes.value = "Si";
 		byes.onclick = function()
 		{
 			localStorage.setItem("vote"+turn, "y" );
@@ -499,7 +509,7 @@ function playLoaded()
 		// if everyone already seen his role, go to the election phase
 		if( turnStep() == president_num )
 		{
-			localStorage.setItem("phase", "vote_result");
+			setPhase("vote_result");
 		}
 	}
 	// -----------------------------------------------------------------
@@ -561,10 +571,10 @@ function playLoaded()
 			localStorage.setItem("past_chancellor", chancellor_num);
 			
 			if (( getRole(getChancellor()) == "Hitler" ) && (Number(localStorage.getItem("fascist_cards")) >= 3) ) {
-				localStorage.setItem("phase", "fascist_win_hitler_elected");
+				setPhase("fascist_win_hitler_elected");
 			}
 			else {
-				localStorage.setItem("phase", "legislative_president");
+				setPhase("legislative_president");
 			}
 		}
 		else
@@ -580,11 +590,11 @@ function playLoaded()
 			tracker_add();
 			if(tracker_at3())
 			{
-				localStorage.setItem("phase", "caos");
+				setPhase("caos");
 			}
 			else
 			{
-				localStorage.setItem("phase", "election");
+				setPhase("election");
 			}
 		}
 		text += boardStats();
@@ -672,7 +682,7 @@ function playLoaded()
 		// text
 		let text = "Ora devi scegliere una delle due leggi qui sotto che il presidente <b>";
 		text += president.name + "</b> ti ha passato.<br>";
-		text += "Quella che scegli verrà <b>approvata</b> e giocata sul tabellone, mentre l'altra saraà scartata";
+		text += "Quella che scegli verrà <b>approvata</b> e giocata sul tabellone, mentre l'altra sarà scartata";
 		text += boardStats() + "<br>";
 		
 		document.getElementById("comment").innerHTML = text;
@@ -762,7 +772,7 @@ function playLoaded()
 		localStorage.setItem("turn", new_president);
 		localStorage.setItem("phase", "election");
 		
-		text += "<br> Il prossimo candidato presidente che proverà ha creare un governo sarà <b>";
+		text += "<br> Il prossimo candidato presidente che proverà a creare un governo sarà <b>";
 		text += getName(new_president) + "</b><br>";
 		
 		document.getElementById("comment").innerHTML = text;
@@ -1115,13 +1125,13 @@ function playLoaded()
 		// title
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
-		let text = "Il cancelliere ti propone il veto<br>Puoi accettare: nessuna legge sarà accettata e una nuova legislatura indetta, "
+		let text = "Il cancelliere ti propone il veto;<br>Puoi accettare: nessuna legge sarà accettata e una nuova legislatura verrà indetta, "
 		text += "Ma l'election tracker avanzera di un posto.<br>Accetti la proposta di veto?";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
 		let byes = document.getElementById("button");
-		byes.value = "Yes";
+		byes.value = "Si";
 		byes.onclick = function()
 		{
 			// discard the two cards, update the election tracker and call a new election
@@ -1134,10 +1144,10 @@ function playLoaded()
 			let new_turn = turnStep();
 			setPresident(new_turn);
 			setChancellor(0);
-			sessionStorage.setItem("phase", "election");
+			setPhase("election");
 			
 			if(tracker_at3()) {
-				sessionStorage.setItem("phase", "caos");
+				setPhase("caos");
 			}
 			window.location = "pass.html";
 		};
