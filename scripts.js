@@ -767,6 +767,7 @@ function playLoaded()
 		}
 		else {
 			new_president = nextPlayer(real_new_president-1);
+			localStorage.setItem("real_new_president", 0);
 		}
 		setPresident(new_president);
 		localStorage.setItem("turn", new_president);
