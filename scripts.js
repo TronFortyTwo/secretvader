@@ -293,7 +293,7 @@ function setGame()
 	console.log(hitler.name + " is Hitler")
 	
 	// find the others
-	if((player_num == 5) || (player_num == 6)) {
+	if((player_num == 4)||(player_num == 5)||(player_num == 6)) {
 		var num_fas = 1;
 	}
 	else if((player_num == 7) || (player_num == 8)) {
@@ -782,26 +782,35 @@ function playLoaded()
 		{
 			let fas_cards = Number(localStorage.getItem("fascist_cards"));
 			
-			if( fas_cards >= 4 )
+			if(player_num == 4)
+			{
+				// special rules for 4 players (only a kill at 5 cards)
+				if(fas_cards == 5)
+				{
+					localStorage.setItem("turn", president_num);
+					setPhase("president_power_kill");
+				}
+			}
+			else if(fas_cards >= 4)
 			{
 				localStorage.setItem("turn", president_num);
-				localStorage.setItem("phase", "president_power_kill");
+				setPhase("president_power_kill");
 			}
 			else if( (fas_cards == 3) && (player_num <= 6) )
 			{
 				localStorage.setItem("turn", president_num);
-				localStorage.setItem("phase", "president_power_see");
+				setPhase("president_power_see");
 			}
 			else if( fas_cards == 3 )
 			{
 				localStorage.setItem("turn", president_num);
-				localStorage.setItem("phase", "president_power_choose");
+				setPhase("president_power_choose");
 			}
 			else if(((fas_cards == 2) && (player_num >= 7)) ||
 					((fas_cards == 1) && (player_num >= 9)))
 			{
 				localStorage.setItem("turn", president_num);
-				localStorage.setItem("phase", "president_power_detective");
+				setPhase("president_power_detective");
 			}
 		}
 	}
@@ -1141,9 +1150,11 @@ function playLoaded()
 			
 			tracker_add();
 			
-			let new_turn = turnStep();
-			setPresident(new_turn);
+			let new_president = nextPlayer(getPresident());
+			setPresident(new_president);
+			localStorage.setItem("turn", new_president);
 			setChancellor(0);
+			
 			setPhase("election");
 			
 			if(tracker_at3()) {
