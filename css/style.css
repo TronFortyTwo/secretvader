@@ -9,6 +9,7 @@ Author URI: https://github.com/tronfortytwo
 * {
 	margin-right: 2.5vw;
 	margin-left: 2.5vw;
+	font-family: sans;
 }
 
 html {
@@ -39,6 +40,11 @@ p {
 }
 
 b {
+	margin-right: 0vw;
+	margin-left: 0vw;
+}
+
+a {
 	margin-right: 0vw;
 	margin-left: 0vw;
 }
