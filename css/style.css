@@ -5,13 +5,14 @@ Author: Emanuele Sorce
 Author URI: https://github.com/tronfortytwo
 */
 
+
 * {
 	margin-right: 2.5vw;
 	margin-left: 2.5vw;
 }
 
 html {
-	background-color: #E0E0E0;
+	background-image: url("texture1.jpg");
 }
 
 h1 {
@@ -48,18 +49,18 @@ font {
 }
 
 button {
-     width: 80vw;
-     height: 6vw;
+	width: 80vw;
+	height: 6vw;
 }
 input {
-     width: 80vw;
-     height: 6vw;
+    width: 80vw;
+	height: 6vw;
 }
 input[type="text"]
 {
-    font-size: 3.51vw;
+	font-size: 3.51vw;
 }
 input[type="button"]
 {
-    font-size: 3.51vw;
+	font-size: 3.51vw;
 }
