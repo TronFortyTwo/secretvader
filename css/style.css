@@ -7,32 +7,32 @@ Author URI: https://github.com/tronfortytwo
 
 
 * {
-	margin-right: 2.5vw;
-	margin-left: 2.5vw;
+	margin-right: 2vw;
+	margin-left: 2vw;
 	font-family: sans;
 }
 
 h1 {
-    font-size: 6vw;
+    font-size: 6.6vw;
 }
 h2 {
-	font-size: 4.5vw;
+	font-size: 4.95vw;
 }
 h3 {
-	font-size: 3.51vw;
+	font-size: 3.861vw;
 }
 h4 {
-	font-size: 3vw;
+	font-size: 3.3vw;
 }
 h5 {
-	font-size: 2.46vw;
+	font-size: 2.706vw;
 }
 h6 {
-	font-size: 2.01vw;
+	font-size: 2.211vw;
 }
 
 p {
-	font-size: 3vw;
+	font-size: 3.3vw;
 }
 
 b {
@@ -52,13 +52,10 @@ font {
 
 button {
 	width: 80vw;
-	height: 6vw;
+	height: 6.25vw;
 }
 input {
     width: 80vw;
-	height: 6vw;
-}
-input
-{
-	font-size: 3.51vw;
+	height: 6.25vw;
+	font-size: 3.861vw;
 }

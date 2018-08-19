@@ -72,7 +72,7 @@ function pile_info()
 	let draw_pile = sessionStorage.getItem("draw_pile");
 	let discard_pile = sessionStorage.getItem("discard_pile");
 	
-	return "Pila delle leggi: " + draw_pile.length + " | scartate: " + discard_pile.length;
+	return "Mazzo: " + draw_pile.length + " | scartate: " + discard_pile.length;
 }
 function pile_discard(c)
 {
@@ -166,8 +166,8 @@ String.prototype.shuffle = function () {
 // return the stats about the board
 function boardStats()
 {
-	let str = "<br><br>Leggi liberali approvate: " + sessionStorage.getItem("liberal_cards") + " di 5";
-	str += "<br>Leggi fasciste approvate: " + sessionStorage.getItem("fascist_cards") + " di 6";
+	let str = "<br><br>Leggi liberali: " + sessionStorage.getItem("liberal_cards") + " di 5";
+	str += "<br>Leggi fasciste: " + sessionStorage.getItem("fascist_cards") + " di 6";
 	str += "<br>Election Tracker: " + sessionStorage.getItem("tracker") + " di 3";
 	str += "<br>" + pile_info() + "<br>";
 	
@@ -266,9 +266,9 @@ function setName( setnum )
 	}
 	else
 	{
-		document.getElementById("p_title").innerHTML = "Player " + (setnum+1) + ":";
+		document.getElementById("p_title").innerHTML = "Giocatore " + (setnum+1) + ":";
 		document.getElementById("p_button").onclick = function(){ setName(setnum+1); };
-		document.getElementById("p_text").value = "Player " + (setnum+1);
+		document.getElementById("p_text").value = "Giocatore " + (setnum+1);
 	}
 }
 
@@ -399,7 +399,7 @@ function playLoaded()
 			}
 		}
 		
-		text += "<br>Come primo presidente, <b>" + president.name + "</b> è stato scelto casualmente";
+		text += "<br><b>" + president.name + "</b> è il primo presidente.";
 		
 		document.getElementById("top_title").innerHTML = "Tu sei <b>" + player.role + "</b>";
 		document.getElementById("comment").innerHTML = text;
