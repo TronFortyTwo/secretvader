@@ -515,6 +515,9 @@ function playLoaded()
 	// show election results
 	else if(phase === "vote_result")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/loud.jpg)';
+		
 		// write things down
 		document.getElementById("top_title").innerHTML = "Leggi questo a tutti";
 		
@@ -740,6 +743,9 @@ function playLoaded()
 	// show the result of the last legislative session
 	else if(phase == "legislative_result")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/loud.jpg)';
+		
 		let last_policy = sessionStorage.getItem("last_policy");
 		
 		document.getElementById("top_title").innerHTML = "Leggi questo a tutti";
@@ -818,6 +824,9 @@ function playLoaded()
 	// liberals just won by making enought liberal policies
 	else if(phase == "liberal_win_cards")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/loud.jpg)';
+		
 		document.getElementById("top_title").innerHTML = "I LIBERALI VINCONO!!";
 		
 		let text = "ANNUNCIO PUBBLICO:<br>Mettendo l'ultima legge liberale sul tabellone, i liberali vincono la partita!<br>";
@@ -831,6 +840,9 @@ function playLoaded()
 	// liberals just won by killing hitler
 	else if(phase == "liberal_win_kill")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/loud.jpg)';
+		
 		document.getElementById("top_title").innerHTML = "I LIBERALI VINCONO!!";
 		
 		let text = "ANNUNCIO PUBBLICO:<br>Uccidendo Hitler, i liberali vincono la partita!<br>";
@@ -844,6 +856,9 @@ function playLoaded()
 	// imperlists just won by making enought fascist policies
 	else if(phase == "fascist_win_cards")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/loud.jpg)';
+		
 		document.getElementById("top_title").innerHTML = "I FASCISTI VINCONO!!";
 		
 		let text = "ANNUNCIO PUBBLICO:<br>Mettendo l'ultima legge fascista sul tabellone, i fascisti vincono la partita!<br>";
@@ -857,6 +872,9 @@ function playLoaded()
 	// imperlists just won by making enought fascist policies
 	else if(phase == "fascist_win_hitler_elected")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/loud.jpg)';
+		
 		document.getElementById("top_title").innerHTML = "I FASCISTI VINCONO!!";
 		
 		let text = "ANNUNCIO PUBBLICO:<br>eleggendo Hitler cancelliere, i fascisti vincono la partita!<br>";
@@ -870,6 +888,9 @@ function playLoaded()
 	// Country fell in caos, a policy is randomly turned
 	else if(phase == "caos")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/loud.jpg)';
+		
 		// take the first policy of the pile
 		let pol = pile_draw();
 		
@@ -974,6 +995,9 @@ function playLoaded()
 	// Tell who has been killed by the president
 	else if(phase == "post_kill")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/loud.jpg)';
+		
 		// title
 		document.getElementById("top_title").innerHTML = "Leggi questo a tutti";
 		
