@@ -5,11 +5,15 @@ Author: Emanuele Sorce
 Author URI: https://github.com/tronfortytwo
 */
 
+@font-face {
+	font-family: "BerlinEmail";
+	src: url('BerlinEmailfont/BerlinEmail.ttf') format("truetype");
+}
 
 * {
+	font-family: "BerlinEmail", "Lucida Console", Monaco, monospace;
 	margin-right: 2vw;
 	margin-left: 2vw;
-	font-family: sans;
 }
 
 h1 {
@@ -54,6 +58,7 @@ button {
 	width: 80vw;
 	height: 6.25vw;
 }
+
 input {
     width: 80vw;
 	height: 6.25vw;

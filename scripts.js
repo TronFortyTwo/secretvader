@@ -554,11 +554,11 @@ function playLoaded()
 		text += "è stato ";
 		if(approved)
 		{
-			text += '<font color="green">approvato</font><br>';
+			text += '<b><font color="green">approvato</font></b><br>';
 		}
 		else
 		{
-			text += '<font color="red">rifiutato</font><br>';
+			text += '<b><font color="red">rifiutato</font></b><br>';
 		}
 		text += "<br>VOTI:<br>";
 		
@@ -691,7 +691,7 @@ function playLoaded()
 		// text
 		let text = "Ora devi scegliere una delle due leggi qui sotto che il presidente <b>";
 		text += president.name + "</b> ti ha passato.<br>";
-		text += "Quella che scegli verrà <b>approvata</b> e giocata sul tabellone, mentre l'altra sarà scartata";
+		text += "Quella che scegli verrà <b>scartata</b>, l'atra sarà giocata sul tabellone.";
 		text += boardStats() + "<br>";
 		
 		document.getElementById("comment").innerHTML = text;
@@ -762,11 +762,11 @@ function playLoaded()
 		text +=  "</b> come cancelliere<br>Ha appena approvato una nuova legge ";
 		if( last_policy == "l")
 		{
-			text += '<font color="blue">liberale</font><br>';
+			text += '<b><font color="blue">liberale</font></b><br>';
 		}
 		else
 		{
-			text += '<font color="red">fascista</font><br>';
+			text += '<b><font color="red">fascista</font></b><br>';
 		}
 		text += boardStats();
 		
@@ -785,7 +785,7 @@ function playLoaded()
 		sessionStorage.setItem("turn", new_president);
 		sessionStorage.setItem("phase", "election");
 		
-		text += "<br> Il prossimo candidato presidente che proverà a creare un governo sarà <b>";
+		text += "<br> Il prossimo candidato sarà <b>";
 		text += getName(new_president) + "</b><br>";
 		
 		document.getElementById("comment").innerHTML = text;
@@ -943,6 +943,9 @@ function playLoaded()
 	// the president kills a player
 	else if(phase == "president_power_kill")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/detective.jpg)';
+		
 		// title
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
@@ -1259,13 +1262,13 @@ function pickCard( n )
 // ---------------------------------------------------------------------
 function pickCardChancellor( cp )
 {
-	let discarded = 1;
+	let played = 1;
 	if(cp == 1) {
-		discarded = 2;
+		played = 2;
 	}
 	
 	// discard the other card
-	pile_discard(sessionStorage.getItem("card"+discarded));
+	pile_discard(sessionStorage.getItem("card"+cp));
 	
 	// we ended doing work with cards, so now we can shuffle if needed
 	pile_shuffle();
@@ -1277,7 +1280,7 @@ function pickCardChancellor( cp )
 	turnStep();
 		
 	// play the choosen card
-	if( sessionStorage.getItem("card"+cp) == "l" )
+	if( sessionStorage.getItem("card"+played) == "l" )
 	{
 		let liberal = Number(sessionStorage.getItem("liberal_cards"));
 		liberal++;
