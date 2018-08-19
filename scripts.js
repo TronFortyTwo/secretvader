@@ -378,9 +378,12 @@ function playLoaded()
 	if( phase === "first_round" )
 	{
 		let text = "";
+		let root = document.getElementsByTagName('html')[0];
 		
 		if((player.role == "fascista") || ((player.role == "Hitler") && (player_num < 7)))
 		{
+			root.style.backgroundImage = 'url(css/fascist.jpg)';
+			
 			text += "Gli altri fascisti sono:<br>";
 			
 			for(var i=1; i<=player_num; i++)
@@ -397,6 +400,10 @@ function playLoaded()
 					}
 				}
 			}
+		}
+		else
+		{
+			root.style.backgroundImage = 'url(css/liberal.jpg)';
 		}
 		
 		text += "<br><b>" + president.name + "</b> è il primo presidente.";
@@ -1015,6 +1022,9 @@ function playLoaded()
 	// the president sees a player orientation
 	else if(phase == "president_power_detective")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/detective.jpg)';
+		
 		// remove standard button
 		removeButton();
 		
@@ -1068,6 +1078,9 @@ function playLoaded()
 	// the president sees the 3 top card of the pile
 	else if(phase == "president_power_see")
 	{
+		let root = document.getElementsByTagName('html')[0];
+		root.style.backgroundImage = 'url(css/detective.jpg)';
+		
 		// title
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
