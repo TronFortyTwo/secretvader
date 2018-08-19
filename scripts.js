@@ -356,16 +356,15 @@ function passLoaded()
 {
 	let name = getName(sessionStorage.getItem("turn"));
 	
-	document.getElementById("notice").innerHTML = "Passa il dispositivo a " + name;
-	document.getElementById("button").value = "Ok, ora sono " + name;
+	document.getElementById("title").innerHTML = "Turno di " + name;
 }
 
 // ---------------------------------------------------------------------
 // This organize the play page just after has loaded
 function playLoaded()
 {
+	// frequently used stuff
 	var phase = getPhase();
-	
 	var turn = sessionStorage.getItem("turn");
 	var player = sessionStorage.getObject("player" + turn );
 	var president_num = getPresident()

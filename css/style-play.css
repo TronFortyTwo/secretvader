@@ -1,0 +1,16 @@
+/*
+Theme Name: Secret Vader Theme
+Description: Simple Theme aimed at mobiles 
+Author: Emanuele Sorce
+Author URI: https://github.com/tronfortytwo
+*/
+@import url("style.css");
+
+
+html {
+	background: url("texture1.jpg") no-repeat center center fixed; 
+    background-size: cover;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+}

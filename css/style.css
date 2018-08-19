@@ -12,10 +12,6 @@ Author URI: https://github.com/tronfortytwo
 	font-family: sans;
 }
 
-html {
-	background-image: url("texture1.jpg");
-}
-
 h1 {
     font-size: 6vw;
 }
@@ -62,11 +58,7 @@ input {
     width: 80vw;
 	height: 6vw;
 }
-input[type="text"]
-{
-	font-size: 3.51vw;
-}
-input[type="button"]
+input
 {
 	font-size: 3.51vw;
 }
