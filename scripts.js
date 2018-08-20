@@ -217,14 +217,22 @@ function nextPlayer( start )
 	return next;
 }
 // ---------------------------------------------------------------------
+// access turn
+function getTurn()
+{
+	return Number(sessionStorage.getItem("turn"));
+}
+function setTurn( nt )
+{
+	sessionStorage.setItem("turn", nt);
+}
+// ---------------------------------------------------------------------
 // subroutine that update the turn
 function turnStep()
 {
-	let next_turn = Number(sessionStorage.getItem("turn"));
+	let next_turn = nextPlayer(getTurn());
 	
-	next_turn = nextPlayer( next_turn );
-	
-	sessionStorage.setItem("turn", next_turn);
+	setTurn(next_turn);
 	
 	return next_turn;
 }
@@ -334,7 +342,7 @@ function setGame()
 	sessionStorage.setItem("real_new_president", "0");
 	
 	// The first president is also the first to play
-	sessionStorage.setItem("turn", first_president);
+	setTurn(first_president);
 	
 	// create the pile of policies
 	pile_create();
@@ -481,9 +489,9 @@ function playLoaded()
 	{
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
-		let text = "Devi votare per il nuovo governo proposto:<br>- <b>";
-		text += president.name + "</b> come nuovo presidente<br>- <b>";
-		text += chancellor.name + "</b> come nuovo cancelliere<br>Per piacere, non rivelare il tuo voto fintanto tutti non abbiano votato<br<br>";
+		let text = "Devi votare per il nuovo governo:<br>- <b>";
+		text += president.name + "</b> presidente<br>- <b>";
+		text += chancellor.name + "</b> cancelliere<br>Non rivelare il tuo voto finchè tutti non hanno votato<br<br>";
 		text += boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -492,7 +500,7 @@ function playLoaded()
 		byes.value = "Si";
 		byes.onclick = function()
 		{
-			sessionStorage.setItem("vote"+turn, "y" );
+			sessionStorage.setItem("vote"+turn, "si" );
 			window.location = "pass.html";
 		};
 		
@@ -506,7 +514,7 @@ function playLoaded()
 		bno.value = "No";
 		bno.onclick = function()
 		{
-			sessionStorage.setItem("vote"+turn, "n" );
+			sessionStorage.setItem("vote"+turn, "no" );
 			window.location = "pass.html";
 		};
 		
@@ -538,7 +546,7 @@ function playLoaded()
 			if( isAlive(i) == false )
 				continue;
 			
-			if( sessionStorage.getItem("vote"+i) == "y" )
+			if( sessionStorage.getItem("vote"+i) == "si" )
 				yes++;
 			else
 				no++;
@@ -548,9 +556,9 @@ function playLoaded()
 			approved = true;
 		}
 		
-		let text = "ANNUNCIO PUBBLICO:<br>Il nuovo governo proposto con:<br>";
-		text += "- <b>" + president.name + "</b> come presidente<br>";
-		text += "- <b>" + chancellor.name + "</b> come cancelliere<br>";
+		let text = "ANNUNCIO PUBBLICO:<br>Il nuovo governo proposto:<br>";
+		text += "- <b>" + president.name + "</b> presidente<br>";
+		text += "- <b>" + chancellor.name + "</b> cancelliere<br>";
 		text += "è stato ";
 		if(approved)
 		{
@@ -575,7 +583,7 @@ function playLoaded()
 		{
 			text += "<br>Ora il nuovo governo varerà una nuova legge<br>";
 			
-			sessionStorage.setItem("turn", president_num);
+			setTurn(president_num);
 			sessionStorage.setItem("past_president", president_num);
 			sessionStorage.setItem("past_chancellor", chancellor_num);
 			
@@ -590,12 +598,12 @@ function playLoaded()
 		{
 			let new_president = nextPlayer(getPresident());
 			
-			text += "<br>Dopo questo fiasco, l'opportunità di create un nuovo governo è data a ";
+			text += "<br>Il prossimo candidato presidente è ";
 			text += "<b>" + getName(new_president) + "</b>";
 			
 			setPresident(new_president);
 			setChancellor(0);
-			sessionStorage.setItem("turn", new_president);
+			setTurn(new_president);
 			tracker_add();
 			if(tracker_at3())
 			{
@@ -621,7 +629,7 @@ function playLoaded()
 		// text
 		let text = "Ora devi scegliere una delle tre leggi qui sotto che verrà <b>scartata</b>.<br>";
 		text += "Le altre due saranno passate al cancelliere <b>" + chancellor.name;
-		text += "</b> che sceglierà quale verrà effettivamente varata";
+		text += "</b> che sceglierà quale verrà varata";
 		text += boardStats();
 		
 		text += "<br><br>";
@@ -738,8 +746,8 @@ function playLoaded()
 			vetob.value = "Proponi il veto al presidente";
 			vetob.onclick = function()
 			{
-				sessionStorage.setItem("phase", "veto");
-				sessionStorage.setItem("turn", president_num);
+				setTurn(president_num);
+				setPhase("veto");
 
 				window.location = "pass.html";
 			};
@@ -758,8 +766,8 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "Leggi questo a tutti";
 		
 		let text = "ANNUNCIO PUBBLICO:<br>Il governo con:<br>- <b>";
-		text += president.name + "</b> come presidente e<br>- <b>" + chancellor.name;
-		text +=  "</b> come cancelliere<br>Ha appena approvato una nuova legge ";
+		text += president.name + "</b> presidente<br>- <b>" + chancellor.name;
+		text +=  "</b> cancelliere<br>Ha approvato una nuova legge ";
 		if( last_policy == "l")
 		{
 			text += '<b><font color="blue">liberale</font></b><br>';
@@ -782,10 +790,10 @@ function playLoaded()
 			sessionStorage.setItem("real_new_president", 0);
 		}
 		setPresident(new_president);
-		sessionStorage.setItem("turn", new_president);
-		sessionStorage.setItem("phase", "election");
+		setTurn(new_president);
+		setPhase("election");
 		
-		text += "<br> Il prossimo candidato sarà <b>";
+		text += "<br> Il prossimo candidato presidente sarà <b>";
 		text += getName(new_president) + "</b><br>";
 		
 		document.getElementById("comment").innerHTML = text;
@@ -800,29 +808,29 @@ function playLoaded()
 				// special rules for 4 players (only a kill at 5 cards)
 				if(fas_cards == 5)
 				{
-					sessionStorage.setItem("turn", president_num);
+					setTurn(president_num);
 					setPhase("president_power_kill");
 				}
 			}
 			else if(fas_cards >= 4)
 			{
-				sessionStorage.setItem("turn", president_num);
+				setTurn(president_num);
 				setPhase("president_power_kill");
 			}
 			else if( (fas_cards == 3) && (player_num <= 6) )
 			{
-				sessionStorage.setItem("turn", president_num);
+				setTurn(president_num);
 				setPhase("president_power_see");
 			}
 			else if( fas_cards == 3 )
 			{
-				sessionStorage.setItem("turn", president_num);
+				setTurn(president_num);
 				setPhase("president_power_choose");
 			}
 			else if(((fas_cards == 2) && (player_num >= 7)) ||
 					((fas_cards == 1) && (player_num >= 9)))
 			{
-				sessionStorage.setItem("turn", president_num);
+				setTurn(president_num);
 				setPhase("president_power_detective");
 			}
 		}
@@ -841,7 +849,7 @@ function playLoaded()
 		
 		document.getElementById("comment").innerHTML = text;
 		
-		sessionStorage.setItem("phase", "end");
+		setPhase("end");
 	}
 	// -----------------------------------------------------------------
 	// liberals just won by killing hitler
@@ -857,7 +865,7 @@ function playLoaded()
 		
 		document.getElementById("comment").innerHTML = text;
 		
-		sessionStorage.setItem("phase", "end");
+		setPhase("end");
 	}
 	// -----------------------------------------------------------------
 	// imperlists just won by making enought fascist policies
@@ -873,7 +881,7 @@ function playLoaded()
 		
 		document.getElementById("comment").innerHTML = text;
 		
-		sessionStorage.setItem("phase", "end");
+		setPhase("end");
 	}
 	// -----------------------------------------------------------------
 	// imperlists just won by making enought fascist policies
@@ -889,7 +897,7 @@ function playLoaded()
 		
 		document.getElementById("comment").innerHTML = text;
 		
-		sessionStorage.setItem("phase", "end");
+		setPhase("end");
 	}
 	// -----------------------------------------------------------------
 	// Country fell in caos, a policy is randomly turned
@@ -904,7 +912,7 @@ function playLoaded()
 		// write the message
 		document.getElementById("top_title").innerHTML = "Read this out loud";
 		
-		let text = "ANNUNCIO PUBBLICO:<br>Dopo tre proposte di governo rifiutate, il caos ha portato all'approvazione della prima legge del mazzo, qualsiasi essa sia.<br>";
+		let text = "ANNUNCIO PUBBLICO:<br>Dopo tre proposte di governo rifiutate, il caos ha portato all'approvazione della prima legge del mazzo<br>";
 		text += "La nuova legge è ";
 		
 		if(pol == "f")
@@ -928,15 +936,15 @@ function playLoaded()
 		
 		if( sessionStorage.getItem("liberal_cards") == 5 )
 		{
-			sessionStorage.setItem("phase", "liberal_win_cards");
+			setPhase("liberal_win_cards");
 		}
 		else if(sessionStorage.getItem("fascist_cards") == 6)
 		{
-			sessionStorage.setItem("phase", "fascist_win_cards");
+			setPhase("fascist_win_cards");
 		}
 		else
 		{
-			sessionStorage.setItem("phase", "election");
+			setPhase("election");
 		}
 	}
 	// -----------------------------------------------------------------
@@ -950,7 +958,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// comment
-		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi scegliere un giocatore da uccidere. Scegli bene!";
+		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi scegliere un giocatore da uccidere";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
@@ -966,15 +974,12 @@ function playLoaded()
 				sessionStorage.setObject("player"+i, killed_player);
 				sessionStorage.setObject("killed_player", i);
 
-				// the new president
-				let new_turn = turnStep();
-	
-				setPresident(new_turn);
+				turnStep();
 	
 				if(killed_player.role != "Hitler")
-					sessionStorage.setItem("phase", "post_kill");
+					setPhase("post_kill");
 				else
-					sessionStorage.setItem("phase", "liberal_win_kill");
+					setPhase("liberal_win_kill");
 	
 				window.location = "pass.html";
 			};
@@ -1018,8 +1023,8 @@ function playLoaded()
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
-		sessionStorage.setItem("turn", sessionStorage.getItem("president"));
-		sessionStorage.setItem("phase", "election");
+		setTurn(getPresident());
+		setPhase("election");
 	}
 	// -----------------------------------------------------------------
 	// the president sees a player orientation
@@ -1035,7 +1040,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// comment
-		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi scegliere un giocatore e vedere il suo schieramento politico. Scegli bene!";
+		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi scegliere un giocatore e vedere il suo schieramento politico";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
@@ -1075,7 +1080,7 @@ function playLoaded()
 		
 		let new_turn = turnStep();
 		setPresident(new_turn);
-		sessionStorage.setItem("phase", "election");
+		setPhase("election");
 	}
 	// -----------------------------------------------------------------
 	// the president sees the 3 top card of the pile
@@ -1088,7 +1093,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// comment
-		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi vedere le tre carte in cima al mazzo delle leggi.";
+		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Ecco le tre carte in cima al mazzo delle leggi.";
 		text += boardStats();
 		
 		// show them
@@ -1114,7 +1119,7 @@ function playLoaded()
 		
 		let new_turn = turnStep();
 		setPresident(new_turn);
-		sessionStorage.setItem("phase", "election");
+		setPhase("election");
 	}
 	// -----------------------------------------------------------------
 	// the president chooses the next candidate president
@@ -1127,7 +1132,7 @@ function playLoaded()
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
 		
 		// comment
-		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi scegliere un giocatore che sia il prossimo presidente. Il presidente ancora dopo seguirà la turnazione originale. Scegli bene!";
+		let text = "SPECIALE POTERE PRESIDENZIALE:<br>Puoi scegliere un giocatore che sia il prossimo presidente.";
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
@@ -1214,8 +1219,8 @@ function playLoaded()
 		bno.onclick = function()
 		{
 			// if refused just repropose the cards to the chancellor
-			sessionStorage.setItem("phase", "legislative_chancellor");
-			sessionStorage.setItem("turn", getChancellor());
+			setTurn( getChancellor() );
+			setPhase("legislative_chancellor");
 			window.location = "pass.html";
 		};
 		
@@ -1288,13 +1293,13 @@ function pickCardChancellor( cp )
 			
 		if( liberal == 5 )
 		{
-			sessionStorage.setItem("phase", "liberal_win_cards");
+			setPhase("liberal_win_cards");
 		}
 		else
 		{
 			// now show the result
 			sessionStorage.setItem("last_policy", "l");
-			sessionStorage.setItem("phase", "legislative_result");
+			setPhase("legislative_result");
 		}
 	}
 	else
@@ -1305,13 +1310,13 @@ function pickCardChancellor( cp )
 	
 		if( fas == 6 )
 		{
-			sessionStorage.setItem("phase", "fascist_win_cards");
+			setPhase("fascist_win_cards");
 		}
 		else
 		{
 			// now show the result
 			sessionStorage.setItem("last_policy", "f");
-			sessionStorage.setItem("phase", "legislative_result");
+			setPhase("legislative_result");
 		}
 	}
 	
