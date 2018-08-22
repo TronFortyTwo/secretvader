@@ -385,6 +385,12 @@ function playLoaded()
 	// first round just to show roles
 	if( phase === "first_round" )
 	{
+		
+		// create the image
+		let picture = document.createElement("IMG");
+		picture.width = "50vw";
+		picture.alt = "Se mi vedi c'è qualcosa che non va";
+		
 		let text = "";
 		let root = document.getElementsByTagName('html')[0];
 		
@@ -408,14 +414,22 @@ function playLoaded()
 					}
 				}
 			}
+			
+			if(player.role == "fascsita")
+				picture.src = "css/fascist-card.jpg";
+			else
+				picture.src = "css/hitler-card.png";
 		}
 		else
 		{
 			root.style.backgroundImage = 'url(css/liberal.jpg)';
+			
+			picture.src = "css/liberal-card.jpg";
 		}
 		
 		text += "<br><b>" + president.name + "</b> è il primo presidente.";
 		
+		document.getElementById("last_break").parentNode.appendChild(picture);
 		document.getElementById("top_title").innerHTML = "Tu sei <b>" + player.role + "</b>";
 		document.getElementById("comment").innerHTML = text;
 		
