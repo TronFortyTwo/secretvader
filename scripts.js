@@ -1,4 +1,11 @@
 // ---------------------------------------------------------------------
+// Set background image
+function setBackground( nb )
+{
+	var root = document.getElementsByTagName('html')[0];
+	root.style.backgroundImage = 'url(' + nb + ')';
+}
+// ---------------------------------------------------------------------
 // Abstract the piles
 function pile_create()
 {
@@ -385,12 +392,6 @@ function playLoaded()
 	// first round just to show roles
 	if( phase === "first_round" )
 	{
-		
-		// create the image
-		let picture = document.createElement("IMG");
-		picture.width = "50vw";
-		picture.alt = "Se mi vedi c'è qualcosa che non va";
-		
 		let text = "";
 		let root = document.getElementsByTagName('html')[0];
 		
@@ -414,30 +415,18 @@ function playLoaded()
 					}
 				}
 			}
-			
-			if(player.role == "fascsita")
-				picture.src = "css/fascist-card.jpg";
-			else
-				picture.src = "css/hitler-card.png";
 		}
 		else
-		{
 			root.style.backgroundImage = 'url(css/liberal.jpg)';
-			
-			picture.src = "css/liberal-card.jpg";
-		}
 		
 		text += "<br><b>" + president.name + "</b> è il primo presidente.";
 		
-		document.getElementById("last_break").parentNode.appendChild(picture);
 		document.getElementById("top_title").innerHTML = "Tu sei <b>" + player.role + "</b>";
 		document.getElementById("comment").innerHTML = text;
 		
 		// if everyone already seen his role, go to the election phase
 		if( turnStep() == president_num )
-		{
 			setPhase("election");
-		}
 	}
 	// -----------------------------------------------------------------
 	// election phase - president turn
@@ -544,9 +533,8 @@ function playLoaded()
 	// show election results
 	else if(phase === "vote_result")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/loud.jpg)';
-		
+		setBackground("css/loud.jpg");
+				
 		// write things down
 		document.getElementById("top_title").innerHTML = "Leggi questo a tutti";
 		
@@ -772,8 +760,7 @@ function playLoaded()
 	// show the result of the last legislative session
 	else if(phase == "legislative_result")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/loud.jpg)';
+		setBackground("css/loud.jpg");
 		
 		let last_policy = sessionStorage.getItem("last_policy");
 		
@@ -853,8 +840,7 @@ function playLoaded()
 	// liberals just won by making enought liberal policies
 	else if(phase == "liberal_win_cards")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/loud.jpg)';
+		setBackground("css/loud.jpg");
 		
 		document.getElementById("top_title").innerHTML = "I LIBERALI VINCONO!!";
 		
@@ -869,8 +855,7 @@ function playLoaded()
 	// liberals just won by killing hitler
 	else if(phase == "liberal_win_kill")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/loud.jpg)';
+		setBackground("css/loud.jpg");
 		
 		document.getElementById("top_title").innerHTML = "I LIBERALI VINCONO!!";
 		
@@ -885,8 +870,7 @@ function playLoaded()
 	// imperlists just won by making enought fascist policies
 	else if(phase == "fascist_win_cards")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/loud.jpg)';
+		setBackground("css/loud.jpg");
 		
 		document.getElementById("top_title").innerHTML = "I FASCISTI VINCONO!!";
 		
@@ -901,8 +885,7 @@ function playLoaded()
 	// imperlists just won by making enought fascist policies
 	else if(phase == "fascist_win_hitler_elected")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/loud.jpg)';
+		setBackground("css/loud.jpg");
 		
 		document.getElementById("top_title").innerHTML = "I FASCISTI VINCONO!!";
 		
@@ -917,8 +900,7 @@ function playLoaded()
 	// Country fell in caos, a policy is randomly turned
 	else if(phase == "caos")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/loud.jpg)';
+		setBackground("css/loud.jpg");
 		
 		// take the first policy of the pile
 		let pol = pile_draw();
@@ -965,8 +947,7 @@ function playLoaded()
 	// the president kills a player
 	else if(phase == "president_power_kill")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/detective.jpg)';
+		setBackground("css/detective.jpg");
 		
 		// title
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
@@ -1024,8 +1005,7 @@ function playLoaded()
 	// Tell who has been killed by the president
 	else if(phase == "post_kill")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/loud.jpg)';
+		setBackground("css/loud.jpg");
 		
 		// title
 		document.getElementById("top_title").innerHTML = "Leggi questo a tutti";
@@ -1044,8 +1024,7 @@ function playLoaded()
 	// the president sees a player orientation
 	else if(phase == "president_power_detective")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/detective.jpg)';
+		setBackground("css/detective.jpg");
 		
 		// remove standard button
 		removeButton();
@@ -1100,8 +1079,7 @@ function playLoaded()
 	// the president sees the 3 top card of the pile
 	else if(phase == "president_power_see")
 	{
-		let root = document.getElementsByTagName('html')[0];
-		root.style.backgroundImage = 'url(css/detective.jpg)';
+		setBackground("css/detective.jpg");
 		
 		// title
 		document.getElementById("top_title").innerHTML = "<b>turno di " + player.name + "</b>";
@@ -1252,15 +1230,12 @@ function playLoaded()
 function postPlay()
 {
 	// this may be the only thing that actually make sense here?
-	if(sessionStorage.getItem("phase") == "end")
-	{
+	if(sessionStorage.getItem("phase") != "end")
+		// continue to play
+		window.location = "pass.html";
+	else
 		// start a new game
 		window.location = "index.html";
-		return;
-	}
-	
-	// give control to next player that has to play
-	window.location = "pass.html";
 }
 
 // ---------------------------------------------------------------------
@@ -1282,9 +1257,8 @@ function pickCard( n )
 function pickCardChancellor( cp )
 {
 	let played = 1;
-	if(cp == 1) {
+	if(cp == 1)
 		played = 2;
-	}
 	
 	// discard the other card
 	pile_discard(sessionStorage.getItem("card"+cp));
