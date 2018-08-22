@@ -6,7 +6,6 @@ Author URI: https://github.com/tronfortytwo
 */
 @import url("style.css");
 
-
 html {
 	background: url("texture1.jpg") no-repeat center center fixed; 
     background-size: cover;
