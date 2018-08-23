@@ -123,6 +123,10 @@ function getPlayer(pl)
 {
 	return sessionStorage.getObject("player"+pl);
 }
+function setPlayer(n, pla)
+{
+	sessionStorage.setObject("player"+n, pla);
+}
 // ---------------------------------------------------------------------
 // abstract stuff
 function getPresident(){
@@ -271,7 +275,7 @@ function setName( setnum )
 		alive: true
 	};
 	
-	sessionStorage.setObject("player"+setnum, player);
+	setPlayer(setnum, player);
 	
 	if(setnum == sessionStorage.getItem("player_number") ) {
 		setGame();
@@ -296,29 +300,32 @@ function setGame()
 	// real number of player - counting also the ones killed
 	sessionStorage.setItem("real_player_number", player_num);
 	
-	// assign what player is V.
+	// assign what player is hitler
 	var vnum = random(1, player_num);
 	
 	var hitler = getPlayer(vnum);
 	
 	hitler.role = "Hitler";
 	
-	sessionStorage.setObject("player"+vnum, hitler);
+	setPlayer(vnum, hitler);
 	
 	console.log(hitler.name + " is Hitler")
 	
 	// find the others
-	if((player_num == 4)||(player_num == 5)||(player_num == 6)) {
+	var num_fas = 0;
+	if( player_num <= 6 )
 		var num_fas = 1;
-	}
-	else if((player_num == 7) || (player_num == 8)) {
+	else if( player_num <= 8)
 		var num_fas = 2;
-	}
-	else if((player_num == 9) || (player_num == 10)) {
+	else if( player_num <= 10)
 		var num_fas = 3;
-	}
+	else if( player_num <= 12)
+		var num_fas = 4;
+	else if( player_num <= 14)
+		var num_fas = 5;
 	
-	while(num_fas > 0) {
+	while(num_fas > 0)
+	{
 		let fas_num = random(1, player_num);
 		
 		let p = getPlayer(fas_num);
@@ -331,7 +338,7 @@ function setGame()
 		
 		p.role = "fascista";
 		
-		sessionStorage.setObject("player"+fas_num, p);
+		setPlayer(fas_num, p);
 		
 		console.log(p.name + " is fascist");
 	}
@@ -369,9 +376,7 @@ function setGame()
 // Make the one who has the phone in the hand pass it
 function passLoaded()
 {
-	let name = getName(sessionStorage.getItem("turn"));
-	
-	document.getElementById("title").innerHTML = "Turno di " + name;
+	document.getElementById("title").innerHTML = "Turno di " + getName(getTurn());
 }
 
 // ---------------------------------------------------------------------
@@ -380,8 +385,8 @@ function playLoaded()
 {
 	// frequently used stuff
 	var phase = getPhase();
-	var turn = sessionStorage.getItem("turn");
-	var player = sessionStorage.getObject("player" + turn );
+	var turn = getTurn();
+	var player = getPlayer(turn);
 	var president_num = getPresident()
 	var president = getPlayer(president_num);
 	var player_num = sessionStorage.getItem("player_number");
@@ -525,9 +530,7 @@ function playLoaded()
 
 		// if everyone already seen his role, go to the election phase
 		if( turnStep() == president_num )
-		{
 			setPhase("vote_result");
-		}
 	}
 	// -----------------------------------------------------------------
 	// show election results
@@ -646,11 +649,11 @@ function playLoaded()
 		// the three card buttons
 		let b1 = document.getElementById("button");
 		b1.value = "LEGGE 1: ";
-		if(cards[0] == "f") {
+		if(cards[0] == "f")
 			b1.value += "fascista";
-		} else {
+		else
 			b1.value += "liberale";
-		}
+	
 		b1.onclick = function(){ pickCard(1); };
 	
 		let bre = document.createElement("br");
