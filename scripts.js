@@ -370,6 +370,56 @@ function setGame()
 	
 	// at the start of the game, just do a turn showing each one role
 	setPhase("first_round");
+	
+	// based on player number, already preset what presidential powers will be
+	if(player_num == 4)
+	{
+		sessionStorage.setItem("power1", "no");
+		sessionStorage.setItem("power2", "no");
+		sessionStorage.setItem("power3", "no");
+		sessionStorage.setItem("power4", "no");
+		sessionStorage.setItem("power5", "president_power_kill");
+	}
+	else if(player_num == 5 || player_num == 6)
+	{
+		sessionStorage.setItem("power1", "no");
+		sessionStorage.setItem("power2", "no");
+		sessionStorage.setItem("power3", "president_power_see");
+		sessionStorage.setItem("power4", "president_power_kill");
+		sessionStorage.setItem("power5", "president_power_kill");
+	}
+	else if(player_num == 7 || player_num == 8)
+	{
+		sessionStorage.setItem("power1", "no");
+		sessionStorage.setItem("power2", "president_power_detective");
+		sessionStorage.setItem("power3", "president_power_choose");
+		sessionStorage.setItem("power4", "president_power_kill");
+		sessionStorage.setItem("power5", "president_power_kill");
+	}
+	else if(player_num == 9 || player_num == 10)
+	{
+		sessionStorage.setItem("power1", "president_power_detective");
+		sessionStorage.setItem("power2", "president_power_detective");
+		sessionStorage.setItem("power3", "president_power_choose");
+		sessionStorage.setItem("power4", "president_power_kill");
+		sessionStorage.setItem("power5", "president_power_kill");
+	}
+	else if(player_num == 11 || player_num == 12)
+	{
+		sessionStorage.setItem("power1", "president_power_detective");
+		sessionStorage.setItem("power2", "president_power_choose");
+		sessionStorage.setItem("power3", "president_power_kill");
+		sessionStorage.setItem("power4", "president_power_kill");
+		sessionStorage.setItem("power5", "president_power_kill");
+	}
+	else if(player_num == 13 || player_num == 14)
+	{
+		sessionStorage.setItem("power1", "president_power_choose");
+		sessionStorage.setItem("power2", "president_power_kill");
+		sessionStorage.setItem("power3", "president_power_kill");
+		sessionStorage.setItem("power4", "president_power_kill");
+		sessionStorage.setItem("power5", "president_power_kill");
+	}
 }
 
 // ---------------------------------------------------------------------
@@ -400,23 +450,26 @@ function playLoaded()
 		let text = "";
 		let root = document.getElementsByTagName('html')[0];
 		
-		if((player.role == "fascista") || ((player.role == "Hitler") && (player_num < 7)))
+		if(player.role != "liberale")
 		{
 			root.style.backgroundImage = 'url(css/fascist.jpg)';
 			
-			text += "Gli altri fascisti sono:<br>";
-			
-			for(var i=1; i<=player_num; i++)
+			if(player.role == "fascista" || player_num < 7)
 			{
-				if(getName(i) != player.name)
+				text += "Gli altri fascisti sono:<br>";
+			
+				for(var i=1; i<=player_num; i++)
 				{
-					if(getRole(i) == "fascista")
+					if(getName(i) != player.name)
 					{
-						text += "- <b>" + getName(i) + "</b><br>"
-					}
-					else if(getRole(i) == "Hitler")
-					{
-						text += "- <b>" + getName(i) + "</b> (Hitler)<br>"
+						if(getRole(i) == "fascista")
+						{
+							text += "- <b>" + getName(i) + "</b><br>"
+						}
+						else if(getRole(i) == "Hitler")
+						{
+							text += "- <b>" + getName(i) + "</b> (Hitler)<br>"
+						}
 					}
 				}
 			}
@@ -686,9 +739,8 @@ function playLoaded()
 		b1.parentNode.appendChild(b3);
 		
 		// turn
-		sessionStorage.setItem("turn", chancellor_num);
-		
-		sessionStorage.setItem("phase", "legislative_chancellor");
+		setTurn(chancellor_num);
+		setPhase("legislative_chancellor");
 	}
 	// -----------------------------------------------------------------
 	// the chancellor takes two cards and choose one to apply
@@ -801,51 +853,11 @@ function playLoaded()
 		// check if some special president power has been activated
 		if( sessionStorage.getItem("last_policy") == "f")
 		{
-			let fas_cards = Number(sessionStorage.getItem("fascist_cards"));
-			
-			if(fas_cards == 1)
-			{
-				if(player_num >= 9)
-				{
-					setTurn(president_num);
-					setPhase("president_power_detective");
-				}
-			}
-			else if(fas_cards == 2)
-			{
-				if(player_num >= 11)
-				{
-					setTurn(president_num);
-					setPhase("president_power_choose");
-				}
-				else if(player_num >= 7)
-				{
-					setTurn(president_num);
-					setPhase("president_power_detective");
-				}
-			}
-			else if(fas_cards == 3)
+			let power = sessionStorage.getItem("power" + sessionStorage.getItem("fascist_cards"));
+			if(power != "no")
 			{
 				setTurn(president_num);
-				if(player_num <= 6)
-					setPhase("president_power_see");
-				else if(player_num <= 10)
-					setPhase("president_power_choose");
-				else
-					setPhase("president_power_kill");
-			}
-			else if(fas_cards == 4)
-			{
-				if(player_num >= 5)
-				{
-					setTurn(president_num);
-					setPhase("president_power_kill");
-				}
-			}
-			else if(fas_cards == 5)
-			{
-				setTurn(president_num);
-				setPhase("president_power_kill");
+				setPhase(power);
 			}
 		}
 	}
@@ -944,17 +956,11 @@ function playLoaded()
 		tracker_reset();
 		
 		if( sessionStorage.getItem("liberal_cards") == 5 )
-		{
 			setPhase("liberal_win_cards");
-		}
 		else if(sessionStorage.getItem("fascist_cards") == 6)
-		{
 			setPhase("fascist_win_cards");
-		}
 		else
-		{
 			setPhase("election");
-		}
 	}
 	// -----------------------------------------------------------------
 	// the president kills a player
@@ -979,8 +985,8 @@ function playLoaded()
 			{
 				let killed_player = getPlayer(i);
 				killed_player.alive = false;
-				sessionStorage.setObject("player"+i, killed_player);
-				sessionStorage.setObject("killed_player", i);
+				setPlayer(i, killed_player);
+				sessionStorage.setItem("killed_player", i);
 
 				turnStep();
 	
@@ -1030,6 +1036,10 @@ function playLoaded()
 		text += boardStats();
 		document.getElementById("comment").innerHTML = text;
 		
+		// be sure president has not been killed
+		setPresident( nextPlayer( getPresident()-1 ) );
+		
+		// call a new election
 		setTurn(getPresident());
 		setPhase("election");
 	}
@@ -1084,8 +1094,7 @@ function playLoaded()
 			}
 		}
 		
-		let new_turn = turnStep();
-		setPresident(new_turn);
+		setPresident( turnStep() );
 		setPhase("election");
 	}
 	// -----------------------------------------------------------------
@@ -1122,8 +1131,7 @@ function playLoaded()
 		
 		document.getElementById("comment").innerHTML = text;
 		
-		let new_turn = turnStep();
-		setPresident(new_turn);
+		setPresident( turnStep() );
 		setPhase("election");
 	}
 	// -----------------------------------------------------------------
@@ -1147,11 +1155,11 @@ function playLoaded()
 			{
 				let real_new_president = nextPlayer(turn);
 		
-				sessionStorage.setItem("turn", i);
+				setTurn(i);
 				setPresident(i);
 				sessionStorage.setItem("real_new_president", real_new_president);
-				sessionStorage.setItem("phase", "election");
-	
+				setPhase("election");
+				
 				window.location = "pass.html";
 			};
 		}
