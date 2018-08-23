@@ -611,13 +611,9 @@ function playLoaded()
 			setTurn(new_president);
 			tracker_add();
 			if(tracker_at3())
-			{
 				setPhase("caos");
-			}
 			else
-			{
 				setPhase("election");
-			}
 		}
 		text += boardStats();
 		
@@ -807,35 +803,49 @@ function playLoaded()
 		{
 			let fas_cards = Number(sessionStorage.getItem("fascist_cards"));
 			
-			if(player_num == 4)
+			if(fas_cards == 1)
 			{
-				// special rules for 4 players (only a kill at 5 cards)
-				if(fas_cards == 5)
+				if(player_num >= 9)
+				{
+					setTurn(president_num);
+					setPhase("president_power_detective");
+				}
+			}
+			else if(fas_cards == 2)
+			{
+				if(player_num >= 11)
+				{
+					setTurn(president_num);
+					setPhase("president_power_choose");
+				}
+				else if(player_num >= 7)
+				{
+					setTurn(president_num);
+					setPhase("president_power_detective");
+				}
+			}
+			else if(fas_cards == 3)
+			{
+				setTurn(president_num);
+				if(player_num <= 6)
+					setPhase("president_power_see");
+				else if(player_num <= 10)
+					setPhase("president_power_choose");
+				else
+					setPhase("president_power_kill");
+			}
+			else if(fas_cards == 4)
+			{
+				if(player_num >= 5)
 				{
 					setTurn(president_num);
 					setPhase("president_power_kill");
 				}
 			}
-			else if(fas_cards >= 4)
+			else if(fas_cards == 5)
 			{
 				setTurn(president_num);
 				setPhase("president_power_kill");
-			}
-			else if( (fas_cards == 3) && (player_num <= 6) )
-			{
-				setTurn(president_num);
-				setPhase("president_power_see");
-			}
-			else if( fas_cards == 3 )
-			{
-				setTurn(president_num);
-				setPhase("president_power_choose");
-			}
-			else if(((fas_cards == 2) && (player_num >= 7)) ||
-					((fas_cards == 1) && (player_num >= 9)))
-			{
-				setTurn(president_num);
-				setPhase("president_power_detective");
 			}
 		}
 	}
