@@ -305,7 +305,7 @@ function setGame()
 	
 	var hitler = getPlayer(vnum);
 	
-	hitler.role = "Hitler";
+	hitler.role = "Vader"
 	
 	setPlayer(vnum, hitler);
 	
@@ -466,9 +466,9 @@ function playLoaded()
 						{
 							text += "- <b>" + getName(i) + "</b><br>"
 						}
-						else if(getRole(i) == "Hitler")
+						else if(getRole(i) == "Vader")
 						{
-							text += "- <b>" + getName(i) + "</b> (Hitler)<br>"
+							text += "- <b>" + getName(i) + "</b> (Vader)<br>"
 						}
 					}
 				}
@@ -645,7 +645,7 @@ function playLoaded()
 			sessionStorage.setItem("past_president", president_num);
 			sessionStorage.setItem("past_chancellor", chancellor_num);
 			
-			if (( getRole(getChancellor()) == "Hitler" ) && (Number(sessionStorage.getItem("fascist_cards")) >= 3) ) {
+			if (( getRole(getChancellor()) == "Vader" ) && (Number(sessionStorage.getItem("fascist_cards")) >= 3) ) {
 				setPhase("fascist_win_hitler_elected");
 			}
 			else {
@@ -884,7 +884,7 @@ function playLoaded()
 		
 		document.getElementById("top_title").innerHTML = "I LIBERALI VINCONO!!";
 		
-		let text = "ANNUNCIO PUBBLICO:<br>Uccidendo Hitler, i liberali vincono la partita!<br>";
+		let text = "ANNUNCIO PUBBLICO:<br>Uccidendo Vader, i liberali vincono la partita!<br>";
 		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
@@ -914,7 +914,7 @@ function playLoaded()
 		
 		document.getElementById("top_title").innerHTML = "I FASCISTI VINCONO!!";
 		
-		let text = "ANNUNCIO PUBBLICO:<br>eleggendo Hitler cancelliere, i fascisti vincono la partita!<br>";
+		let text = "ANNUNCIO PUBBLICO:<br>eleggendo Vader cancelliere, i fascisti vincono la partita!<br>";
 		text += playerRoles() + boardStats();
 		
 		document.getElementById("comment").innerHTML = text;
