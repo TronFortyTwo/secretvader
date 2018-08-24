@@ -990,7 +990,7 @@ function playLoaded()
 
 				turnStep();
 	
-				if(killed_player.role != "Hitler")
+				if(killed_player.role != "Vader")
 					setPhase("post_kill");
 				else
 					setPhase("liberal_win_kill");
